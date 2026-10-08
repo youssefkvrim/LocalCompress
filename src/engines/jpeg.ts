@@ -204,6 +204,8 @@ function decodeJpeg(d: Uint8Array): Decoded {
       const width = (seg[3] << 8) | seg[4];
       const nf = seg[5];
       if (!width || !height) bail('DNL not supported');
+      // Coefficients take 6 bytes per pixel or more: refuse pixel bombs (as images.ts does).
+      if (width * height > 120_000_000 || nf > 4) bail('image too large');
       const comps: Component[] = [];
       for (let i = 0; i < nf; i++) {
         const o = 6 + i * 3;

@@ -92,12 +92,19 @@ export async function verify(output: Blob, original: Archive, changed: Set<numbe
 export const zipEngine: Engine = async (job) => {
   const archive = await readZip(job.file);
   const out = await Writer.create(job.id, 'out.zip');
-  const changed = await rewrite(job.file, archive, out, { progress: (f) => job.progress(f * 0.8) });
+  // OpenDocument (and EPUB) require their first entry, "mimetype", to stay first and uncompressed.
+  const changed = await rewrite(job.file, archive, out, {
+    progress: (f) => job.progress(f * 0.8),
+    policy: (e) => (e.index === 0 && e.name === 'mimetype' ? 'copy' : 'pack'),
+  });
   const file = await out.close();
   job.step('verify');
   const problems = await verify(file, archive, changed);
   job.check('Archive reopens', true);
   job.check('Structure preserved', !problems.some((p) => p.includes('changed') || p.includes('count')));
   job.check('CRC-32 verified', problems.length === 0);
-  return { file, path: out.path, ext: 'zip', engine: 'DEFLATE (libdeflate 12)', lossless: true };
+  // An OpenDocument file keeps its own extension.
+  const own = job.file.name.split('.').pop()?.toLowerCase() ?? '';
+  const ext = ['odt', 'ods', 'odp'].includes(own) ? own : 'zip';
+  return { file, path: out.path, ext, engine: 'DEFLATE (libdeflate 12)', lossless: true };
 };

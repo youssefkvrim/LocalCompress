@@ -2,7 +2,7 @@
  * The Informations page: privacy, settings, modes, formats, checks, the
  * tools LocalCompress is built on, temporary storage and contact.
  */
-import { purgeSession, usage } from '../lib/scratch';
+import { usage } from '../lib/scratch';
 import type { Settings } from '../lib/types';
 import { h, icon, replace } from './dom';
 import { headersOk, store } from './store';
@@ -20,6 +20,11 @@ const TOOLS: [string, [string, string], string][] = [
   ['libdeflate', ['Compresse les archives et documents, plus fort que le ZIP classique.', 'Compresses archives and documents, harder than classic ZIP.'], 'https://github.com/ebiggers/libdeflate'],
   ['hash-wasm', ['Calcule l’empreinte qui prouve qu’un fichier n’a pas changé.', 'Computes the fingerprint that proves a file has not changed.'], 'https://github.com/Daninet/hash-wasm'],
 ];
+
+/** Remove every finished file (from the list and the disk); waiting and running files stay. */
+async function emptyStorage() {
+  for (const item of store.items.filter((i) => i.state === 'done' || i.state === 'failed')) await store.remove(item);
+}
 
 export function panel() {
   const body = h('div', { class: 'panel-body' });
@@ -72,7 +77,7 @@ export function panel() {
       ),
       section(
         t('storage'),
-        h('p', { class: 'line spread' }, storage, h('button', { class: 'icon-btn danger', type: 'button', 'aria-label': t('purge'), title: t('purge'), onclick: () => void purgeSession().then(render) }, icon.trash())),
+        h('p', { class: 'line spread' }, storage, h('button', { class: 'icon-btn danger', type: 'button', 'aria-label': t('purge'), title: t('purge'), onclick: () => void emptyStorage().then(render) }, icon.trash())),
       ),
       section(t('doc.contact'), h('p', null, t('doc.contactText')), h('a', { class: 'btn ghost', href: `mailto:${CONTACT}?subject=LocalCompress` }, icon.mail(), CONTACT)),
       h('p', { class: 'version' }, `LocalCompress ${__VERSION__}`),

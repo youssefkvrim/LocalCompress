@@ -6,7 +6,7 @@ export type Lang = 'fr' | 'en';
 
 const TEXT = {
   title: ['Compressez vos fichiers.', 'Compress your files.'],
-  sub: ['Images, PDF, documents, vidéos, audio et archives.', 'Images, PDFs, documents, videos, audio and archives.'],
+  sub: ['Images, PDF, documents, vidéos et archives.', 'Images, PDFs, documents, videos and archives.'],
   sub2: ['Adapté aux documents classifiés C1, C2 et C3.', 'Suitable for C1, C2 and C3 classified documents.'],
   drop: ['Déposez vos fichiers ici', 'Drop your files here'],
   browse: ['ou cliquez pour les choisir', 'or click to choose them'],
@@ -88,14 +88,14 @@ const CATEGORIES: Record<Category, [string, string]> = {
   other: ['Fichier', 'File'],
 };
 
-const FORMATS: Record<Exclude<Category, 'other'>, string> = {
-  image: 'JPEG, PNG, WebP, AVIF, HEIC, BMP, TIFF, GIF',
+/** Only what is actually compressed today. */
+const FORMATS: Partial<Record<Category, string>> = {
+  image: 'JPEG, PNG',
   pdf: 'PDF',
-  presentation: 'PPTX, ODP, PPTM',
-  spreadsheet: 'XLSX, ODS, XLSM',
-  document: 'DOCX, ODT, DOCM',
+  presentation: 'PPTX, PPTM, ODP',
+  spreadsheet: 'XLSX, XLSM, ODS',
+  document: 'DOCX, DOCM, ODT',
   video: 'MP4, MOV, MKV, WebM',
-  audio: 'WAV, MP3, M4A',
   archive: 'ZIP',
 };
 

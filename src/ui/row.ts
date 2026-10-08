@@ -1,5 +1,6 @@
 /** One line per file: category, name, sizes, saving, action. */
 import { categoryOf } from '../lib/detect';
+import { safeName } from '../lib/names';
 import type { Step } from '../lib/types';
 import { categoryIcon, h, icon, replace } from './dom';
 import { save, store, type Item } from './store';
@@ -32,7 +33,7 @@ export function row(item: Item) {
     'li',
     { class: 'row' },
     h('span', { class: 'row-icon' }, categoryIcon[category]()),
-    h('div', { class: 'row-text' }, h('span', { class: 'row-name', title: item.file.name }, item.file.name), meta),
+    h('div', { class: 'row-text' }, h('span', { class: 'row-name', title: safeName(item.file.name) }, safeName(item.file.name)), meta),
     gain,
     action,
     bar,
