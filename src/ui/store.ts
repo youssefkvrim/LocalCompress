@@ -1,19 +1,23 @@
 /**
- * Application state and the job queue. Jobs run one at a time, bounded
- * memory for multi-GB files, each in a fresh worker.
+ * Application state and the job queue. Small files are processed several
+ * at a time (one fresh worker each); a very large file runs alone, so
+ * memory stays bounded.
  *
  * Only the settings are persisted (in this browser). Never file names,
  * contents or results.
  */
 import { getSession, openFile, removeJob } from '../lib/scratch';
 import { BlobSink, ZipWriter, newEntry } from '../lib/zip';
-import { sanitize, type FromWorker, type NetEntry, type Reason, type Result, type Settings } from '../lib/types';
+import { sanitize, type FromWorker, type NetEntry, type Reason, type Result, type Settings, type Step } from '../lib/types';
 
 export interface Item {
   id: string;
   file: File;
   state: 'waiting' | 'working' | 'done' | 'failed';
   progress: number;
+  step: Step;
+  /** When the current step started (performance.now()), for a fluid progress bar. */
+  stepAt: number;
   result?: Result;
   reason?: Reason;
   worker?: Worker;
@@ -49,9 +53,9 @@ export const store = {
     store.emit();
   },
   add(files: Iterable<File>) {
-    for (const file of files) store.items.push({ id: crypto.randomUUID(), file, state: 'waiting', progress: 0 });
-    store.emit();
+    for (const file of files) store.items.push({ id: crypto.randomUUID(), file, state: 'waiting', progress: 0, step: 'compress', stepAt: 0 });
     next();
+    store.emit();
   },
   async remove(item: Item) {
     item.worker?.terminate();
@@ -70,14 +74,27 @@ function load(): Settings {
   }
 }
 
-/** Start the next waiting item if nothing is running. */
+/** Files above this run alone; below it, up to PARALLEL run together. */
+const LARGE = 200 * 1024 * 1024;
+const PARALLEL = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1));
+
+export const pending = () => store.items.some((i) => i.state === 'waiting' || i.state === 'working');
+
 function next() {
-  if (store.items.some((i) => i.state === 'working')) return;
-  const item = store.items.find((i) => i.state === 'waiting');
-  if (!item) return;
+  for (;;) {
+    const working = store.items.filter((i) => i.state === 'working');
+    const item = store.items.find((i) => i.state === 'waiting');
+    if (!item || working.length >= PARALLEL || working.some((i) => i.file.size > LARGE)) return;
+    if (item.file.size > LARGE && working.length) return;
+    start(item);
+  }
+}
+
+function start(item: Item) {
   const worker = new Worker(new URL('../worker/job.ts', import.meta.url), { type: 'module' });
   item.worker = worker;
   item.state = 'working';
+  item.stepAt = performance.now();
   const finish = (state: Item['state']) => {
     worker.terminate();
     item.worker = undefined;
@@ -87,6 +104,7 @@ function next() {
   };
   worker.onmessage = ({ data: m }: MessageEvent<FromWorker>) => {
     if (m.type === 'progress') (item.progress = m.value), store.emit();
+    else if (m.type === 'step') (item.step = m.step), (item.stepAt = performance.now()), (item.progress = 0), store.emit();
     else if (m.type === 'net') store.net(m.entry);
     else if (m.type === 'result') (item.result = m.result), finish('done');
     else (item.reason = m.reason), finish('failed');
@@ -97,7 +115,6 @@ function next() {
     finish('failed');
   };
   worker.postMessage({ id: item.id, session: getSession(), file: item.file, settings: store.settings });
-  store.emit();
 }
 
 /** Write the result where the user chooses. Bytes go from local disk to local disk. */
@@ -107,6 +124,7 @@ export async function save(item: Item) {
 
 /** Every result in one ZIP, named LocalCompress-HH-mm-ss.zip. Files are stored, not recompressed. */
 export async function saveAll() {
+  if (pending()) return;
   const done = store.items.filter((i) => i.result?.optimized);
   const sink = new BlobSink();
   const zip = new ZipWriter(sink);

@@ -1,7 +1,7 @@
 /** The single screen: title, drop zone, mode, list of files, footer. */
 import type { Mode } from '../lib/types';
 import { h, icon, logo, replace } from './dom';
-import { saveAll, store } from './store';
+import { pending, saveAll, store } from './store';
 import { row } from './row';
 import { CONTACT, panel as makePanel, headersOk } from './panel';
 import { getLang, setLang, t, type Lang } from './i18n';
@@ -36,7 +36,7 @@ export function mountApp(root: HTMLElement) {
     h(
       'main',
       { class: 'main' },
-      h('h1', { class: 'title' }, t('title'), h('br'), h('span', null, t('titleEnd'))),
+      h('h1', { class: 'title' }, t('title')),
       h('p', { class: 'lede' }, t('sub')),
       h('button', { class: 'zone', type: 'button', onclick: () => picker.click() }, h('span', { class: 'zone-plus' }, icon.plus()), h('span', { class: 'zone-title' }, t('drop')), h('span', { class: 'zone-sub' }, t('browse'))),
       h('div', { class: 'mode' }, modes, hint),
@@ -46,7 +46,8 @@ export function mountApp(root: HTMLElement) {
     h(
       'footer',
       { class: 'foot' },
-      h('p', null, t('footer'), ' · © 2026 Safran'),
+      h('span', null, 'LocalCompress © Safran 2026'),
+      h('span', { class: 'foot-center' }, t('footer')),
       h('a', { class: 'link', href: `mailto:${CONTACT}?subject=LocalCompress` }, icon.mail(), t('contact')),
     ),
     h('div', { class: 'veil' }, h('p', null, t('release'))),
@@ -62,8 +63,13 @@ export function mountApp(root: HTMLElement) {
     for (const id of rows.keys()) if (!store.items.some((i) => i.id === id)) rows.delete(id);
     replace(list, ...store.items.map((i) => rows.get(i.id)!.el));
     rows.forEach((r) => r.update());
+    // While files are processing, the button counts them all and waits; afterwards it counts what will be saved.
+    const busy = pending();
+    const count = busy ? store.items.length : store.items.filter((i) => i.result?.optimized).length;
     actions.hidden = store.items.length < 2;
-    saveAllButton.hidden = store.items.filter((i) => i.result?.optimized).length < 2;
+    saveAllButton.hidden = count < 2;
+    (saveAllButton as HTMLButtonElement).disabled = busy;
+    replace(saveAllButton, icon.down(), t('saveAll', count));
     infoButton.classList.toggle('warn', !headersOk() || store.network.some((n) => n.blocked));
     document.body.classList.toggle('has-files', store.items.length > 0);
     panel.render();

@@ -48,6 +48,7 @@ export const officeEngine: Engine = async (job) => {
     },
   });
   const file = await out.close();
+  job.step('verify');
 
   const problems = await verify(file, archive, changed);
   job.check('Package reopens', true);
