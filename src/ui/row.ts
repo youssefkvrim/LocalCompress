@@ -69,7 +69,7 @@ export function row(item: Item) {
     }
     replace(
       action,
-      r?.optimized ? h('button', { class: 'btn small', type: 'button', onclick: () => void save(item) }, icon.down(), t('save')) : null,
+      r ? h('button', { class: `btn small${r.optimized ? '' : ' ghost'}`, type: 'button', onclick: () => void save(item) }, icon.down(), t('save')) : null,
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('remove'), title: t('remove'), onclick: () => void store.remove(item) }, icon.close()),
     );
   }

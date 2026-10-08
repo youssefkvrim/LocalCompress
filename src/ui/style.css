@@ -30,6 +30,8 @@ body {
   caret-color: transparent;
 }
 input, textarea { caret-color: auto; }
+/* The app container fills the window, so the footer sits at the bottom. */
+#app { flex: 1; display: flex; flex-direction: column; }
 button, input { font: inherit; color: inherit; }
 button { background: none; border: 0; padding: 0; cursor: pointer; }
 a { color: inherit; }
@@ -74,6 +76,7 @@ a { color: inherit; }
 .zone-title { font-size: 18px; font-weight: 600; }
 .zone-sub { font-size: 14px; color: var(--grey); }
 .has-files .zone { padding: 22px 16px; }
+.zone.blocked { border-color: var(--warn); background: #fff4e5; cursor: default; text-align: center; }
 .has-files .zone-plus { width: 40px; height: 40px; margin-bottom: 4px; }
 
 .mode { display: grid; justify-items: center; gap: 10px; margin: clamp(14px, 3vh, 26px) 0 clamp(16px, 3vh, 32px); }
@@ -104,7 +107,7 @@ a { color: inherit; }
 .row-bar { grid-column: 1 / -1; height: 3px; margin-top: 12px; border-radius: 3px; background: var(--line); overflow: hidden; visibility: hidden; }
 .row-bar::after { content: ''; display: block; height: 100%; background: var(--blue); transform-origin: left; transform: scaleX(var(--p, 0)); }
 .row[data-state='working'] .row-bar { visibility: visible; }
-.row-note { grid-column: 2 / -1; margin: 0; padding: 6px 0 14px; min-height: 20px; font-size: 13px; color: var(--grey); }
+.row-note { grid-column: 2 / -1; margin: 0; padding: 6px 0 14px; min-height: 40px; font-size: 13px; color: var(--grey); }
 .row[data-optimized='true'] .row-note { color: var(--ok); }
 .row[data-state='failed'] .row-note { color: var(--bad); }
 
@@ -140,7 +143,7 @@ a { color: inherit; }
 .panel.open .panel-sheet { transform: none; }
 .panel-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px 10px 32px; }
 .panel-head h2 { margin: 0; font-size: 22px; font-weight: 600; }
-.panel-body { flex: 1; overflow-y: auto; padding: 0 32px 40px; }
+.panel-body { flex: 1; overflow-y: auto; padding: 0 32px 16px; }
 .panel-body section { padding: 20px 0; border-bottom: 1px solid var(--line); }
 .panel-body h3 { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
 .panel-body p { margin: 0 0 12px; color: var(--grey); font-size: 14px; }
@@ -164,7 +167,9 @@ a { color: inherit; }
 .tools a:hover { text-decoration: underline; }
 .tools a .i { width: 14px; height: 14px; }
 .tools span { color: var(--grey); }
-.version { margin-top: 20px !important; font-size: 12px !important; }
+.version { margin: 16px 0 0 !important; text-align: center; font-size: 12px !important; }
+.danger { color: var(--bad); }
+.danger:hover { background: #fdecea; color: var(--bad); }
 .tech { padding-top: 16px; }
 .tech summary { cursor: pointer; font-weight: 600; font-size: 15px; }
 .tech h4 { margin: 18px 0 8px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--grey); }

@@ -5,14 +5,12 @@
 import { purgeSession, usage } from '../lib/scratch';
 import type { Settings } from '../lib/types';
 import { h, icon, replace } from './dom';
-import { store } from './store';
+import { headersOk, store } from './store';
 import { bytes, formatList, getLang, pickText, t } from './i18n';
 
 declare const __VERSION__: string;
 export const CONTACT = 'youssef.karim@safrangroup.com';
 
-/** Production must run cross-origin isolated: proof the security headers arrived. */
-export const headersOk = () => !import.meta.env.PROD || crossOriginIsolated;
 
 /** Public projects LocalCompress is built on: [name, [fr, en], link]. */
 const TOOLS: [string, [string, string], string][] = [
@@ -21,8 +19,6 @@ const TOOLS: [string, [string, string], string][] = [
   ['jSquash', ['Compresse les images (MozJPEG, OxiPNG).', 'Compresses images (MozJPEG, OxiPNG).'], 'https://github.com/jamsinclair/jSquash'],
   ['libdeflate', ['Compresse les archives et documents, plus fort que le ZIP classique.', 'Compresses archives and documents, harder than classic ZIP.'], 'https://github.com/ebiggers/libdeflate'],
   ['hash-wasm', ['Calcule l’empreinte qui prouve qu’un fichier n’a pas changé.', 'Computes the fingerprint that proves a file has not changed.'], 'https://github.com/Daninet/hash-wasm'],
-  ['Poppins', ['La police de caractères de l’application.', 'The application’s typeface.'], 'https://github.com/itfoundry/Poppins'],
-  ['LocalCompress', ['Le code source de cette application.', 'The source code of this application.'], 'https://github.com/youssefkvrim/LocalCompress'],
 ];
 
 export function panel() {
@@ -54,8 +50,10 @@ export function panel() {
       section(
         t('doc.privacy'),
         h('p', null, t('doc.privacyText')),
+        h('p', null, t('doc.privacyText2')),
+        h('p', null, t('doc.privacyText3')),
         headersOk() ? null : h('p', { class: 'warn' }, t('misconfig')),
-        h('p', { class: 'line' }, store.offline ? icon.check() : icon.info(), t(store.offline ? 'offline' : 'notOffline')),
+        store.offline ? h('p', { class: 'line' }, icon.check(), t('offline')) : null,
       ),
       section(t('doc.settings'), toggle('set.meta', 'set.metaHint', 'stripMetadata'), toggle('set.macros', 'set.macrosHint', 'allowMacros')),
       section(t('doc.modes'), ...(['lossless', 'balanced', 'compact'] as const).map((m) => h('p', null, h('b', null, `${t(m)}${getLang() === 'fr' ? ' :' : ':'} `), t(`mode.${m}`)))),
@@ -74,7 +72,7 @@ export function panel() {
       ),
       section(
         t('storage'),
-        h('p', { class: 'line spread' }, storage, h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('purge'), title: t('purge'), onclick: () => void purgeSession().then(render) }, icon.trash())),
+        h('p', { class: 'line spread' }, storage, h('button', { class: 'icon-btn danger', type: 'button', 'aria-label': t('purge'), title: t('purge'), onclick: () => void purgeSession().then(render) }, icon.trash())),
       ),
       section(t('doc.contact'), h('p', null, t('doc.contactText')), h('a', { class: 'btn ghost', href: `mailto:${CONTACT}?subject=LocalCompress` }, icon.mail(), CONTACT)),
       h('p', { class: 'version' }, `LocalCompress ${__VERSION__}`),
