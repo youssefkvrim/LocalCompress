@@ -24,6 +24,12 @@ export interface Item {
 }
 
 const KEY = 'localcompress.settings';
+
+/**
+ * Production must run cross-origin isolated: the proof that the security
+ * headers (CSP, COOP, COEP) arrived. Without them nothing is processed.
+ */
+export const headersOk = () => !import.meta.env.PROD || crossOriginIsolated;
 const listeners = new Set<() => void>();
 
 export const store = {
@@ -53,6 +59,7 @@ export const store = {
     store.emit();
   },
   add(files: Iterable<File>) {
+    if (!headersOk()) return;
     for (const file of files) store.items.push({ id: crypto.randomUUID(), file, state: 'waiting', progress: 0, step: 'compress', stepAt: 0 });
     next();
     store.emit();
@@ -119,13 +126,19 @@ function start(item: Item) {
 
 /** Write the result where the user chooses. Bytes go from local disk to local disk. */
 export async function save(item: Item) {
-  await saveAs(await openFile(item.result!.path), item.result!.outputName);
+  await saveAs(await fileOf(item), item.result!.outputName);
 }
+
+/** The result on disk, or the original when nothing could be gained. */
+const fileOf = async (item: Item): Promise<Blob> => (item.result!.optimized ? openFile(item.result!.path) : item.file);
+
+/** Everything that can be saved: every finished file, compressed or as is. */
+export const savable = () => store.items.filter((i) => i.state === 'done' && i.result);
 
 /** Every result in one ZIP, named LocalCompress-HH-mm-ss.zip. Files are stored, not recompressed. */
 export async function saveAll() {
   if (pending()) return;
-  const done = store.items.filter((i) => i.result?.optimized);
+  const done = savable();
   const sink = new BlobSink();
   const zip = new ZipWriter(sink);
   const used = new Set<string>();
@@ -134,7 +147,7 @@ export async function saveAll() {
     let name = r.outputName;
     for (let n = 2; used.has(name); n++) name = r.outputName.replace(/(\.[^.]*)?$/, ` (${n})$1`);
     used.add(name);
-    await zip.putFile(newEntry(name), await openFile(r.path), r.crc32!);
+    await zip.putFile(newEntry(name), await fileOf(item), r.crc32!);
   }
   zip.finish(new Uint8Array(0));
   const time = new Date().toTimeString().slice(0, 8).replaceAll(':', '-');

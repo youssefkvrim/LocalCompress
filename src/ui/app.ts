@@ -1,9 +1,9 @@
 /** The single screen: title, drop zone, mode, list of files, footer. */
 import type { Mode } from '../lib/types';
 import { h, icon, logo, replace } from './dom';
-import { pending, saveAll, store } from './store';
+import { headersOk, pending, savable, saveAll, store } from './store';
 import { row } from './row';
-import { CONTACT, panel as makePanel, headersOk } from './panel';
+import { CONTACT, panel as makePanel } from './panel';
 import { getLang, setLang, t, type Lang } from './i18n';
 
 const MODES: Mode[] = ['lossless', 'balanced', 'compact'];
@@ -37,8 +37,10 @@ export function mountApp(root: HTMLElement) {
       'main',
       { class: 'main' },
       h('h1', { class: 'title' }, t('title')),
-      h('p', { class: 'lede' }, t('sub')),
-      h('button', { class: 'zone', type: 'button', onclick: () => picker.click() }, h('span', { class: 'zone-plus' }, icon.plus()), h('span', { class: 'zone-title' }, t('drop')), h('span', { class: 'zone-sub' }, t('browse'))),
+      h('p', { class: 'lede' }, t('sub'), h('br'), t('sub2')),
+      headersOk()
+        ? h('button', { class: 'zone', type: 'button', onclick: () => picker.click() }, h('span', { class: 'zone-plus' }, icon.plus()), h('span', { class: 'zone-title' }, t('drop')), h('span', { class: 'zone-sub' }, t('browse')))
+        : h('div', { class: 'zone blocked', role: 'alert' }, h('span', { class: 'zone-title' }, t('misconfig'))),
       h('div', { class: 'mode' }, modes, hint),
       list,
       actions,
@@ -65,7 +67,7 @@ export function mountApp(root: HTMLElement) {
     rows.forEach((r) => r.update());
     // While files are processing, the button counts them all and waits; afterwards it counts what will be saved.
     const busy = pending();
-    const count = busy ? store.items.length : store.items.filter((i) => i.result?.optimized).length;
+    const count = busy ? store.items.length : savable().length;
     actions.hidden = store.items.length < 2;
     saveAllButton.hidden = count < 2;
     (saveAllButton as HTMLButtonElement).disabled = busy;

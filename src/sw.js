@@ -5,8 +5,8 @@
  *
  *  - Only GET/HEAD of a listed file on this origin is served; every other
  *    request is answered here with 403 and reported, it never leaves.
- *  - Files are verified against their hash before being cached, then
- *    served from the cache, so the app works with the network off.
+ *  - Files are verified against their hash before being cached or served,
+ *    then served from the cache, so the app works with the network off.
  */
 'use strict';
 
@@ -64,5 +64,28 @@ self.addEventListener('fetch', (event) => {
     report(req, why);
     return event.respondWith(new Response('Blocked by LocalCompress', { status: 403 }));
   }
-  event.respondWith(caches.open(CACHE).then(async (cache) => (await cache.match(navigation ? INDEX : url)) ?? fetch(req)));
+  event.respondWith(serve(navigation ? INDEX : url));
 });
+
+/**
+ * From the cache; on a miss (eviction, first load), fetch the file and serve
+ * it only if it matches its build hash. Anything else fails closed.
+ */
+async function serve(url) {
+  const cache = await caches.open(CACHE);
+  const hit = await cache.match(url);
+  if (hit) return hit;
+  const expected = HASH.get(url.pathname);
+  if (!expected) return new Response('Not part of LocalCompress', { status: 404 });
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (res.ok && (await hex(await res.clone().arrayBuffer())) === expected) {
+      await cache.put(url, res.clone());
+      return res;
+    }
+  } catch {
+    /* offline and not cached */
+  }
+  report({ url: url.href, method: 'GET' }, 'integrity check failed');
+  return new Response('Integrity check failed', { status: 502 });
+}

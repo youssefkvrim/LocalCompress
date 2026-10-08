@@ -6,10 +6,8 @@ export type Lang = 'fr' | 'en';
 
 const TEXT = {
   title: ['Compressez vos fichiers.', 'Compress your files.'],
-  sub: [
-    'Images, PDF, documents Office, vidéos, audio et archives. Adapté aux documents classifiés C1, C2 et C3.',
-    'Images, PDFs, Office documents, videos, audio and archives. Suitable for C1, C2 and C3 classified documents.',
-  ],
+  sub: ['Images, PDF, documents, vidéos, audio et archives.', 'Images, PDFs, documents, videos, audio and archives.'],
+  sub2: ['Adapté aux documents classifiés C1, C2 et C3.', 'Suitable for C1, C2 and C3 classified documents.'],
   drop: ['Déposez vos fichiers ici', 'Drop your files here'],
   browse: ['ou cliquez pour les choisir', 'or click to choose them'],
   release: ['Relâchez pour compresser', 'Release to compress'],
@@ -36,20 +34,27 @@ const TEXT = {
 
   'doc.privacy': ['Confidentialité', 'Privacy'],
   'doc.privacyText': [
-    'Vous pouvez y déposer des documents C1, C2 et C3 : le traitement se fait entièrement sur cet ordinateur, sans compte ni connexion. L’application fonctionne aussi hors ligne. L’original n’est jamais modifié.',
-    'You can use it for C1, C2 and C3 documents: processing happens entirely on this computer, with no account and no connection. The application also works offline. The original is never modified.',
+    'Vous pouvez y déposer des documents C1, C2 et C3 : le traitement se fait entièrement sur cet ordinateur, sans compte ni connexion, et l’application fonctionne aussi hors ligne.',
+    'You can use it for C1, C2 and C3 documents: processing happens entirely on this computer, with no account and no connection, and the application also works offline.',
+  ],
+  'doc.privacyText2': [
+    'Les fichiers ne quittent jamais le navigateur. Aucune information n’est collectée : ni nom de fichier, ni statistique, ni traceur. Une empreinte SHA-256 de chaque fichier et de son résultat est calculée sur cet ordinateur, pour en garantir la traçabilité.',
+    'Files never leave the browser. No information is collected: no file names, no statistics, no trackers. A SHA-256 fingerprint of each file and of its result is computed on this computer, for traceability.',
+  ],
+  'doc.privacyText3': [
+    'LocalCompress est conçu pour une confidentialité maximale : il évite de recourir à des outils tiers hébergés sur des serveurs externes, ou à des logiciels opaques.',
+    'LocalCompress is designed for maximum privacy: it avoids relying on third-party tools hosted on external servers, or on opaque software.',
   ],
   offline: ['Prêt à fonctionner hors ligne', 'Ready to work offline'],
-  notOffline: ['Mode hors ligne en préparation', 'Offline mode not ready yet'],
-  misconfig: ['Configuration du serveur incomplète : prévenez l’administrateur.', 'Incomplete server configuration: tell your administrator.'],
+  misconfig: ['Configuration du serveur incomplète : le traitement est désactivé par sécurité. Prévenez l’administrateur.', 'Incomplete server configuration: processing is disabled for safety. Tell your administrator.'],
   'doc.settings': ['Réglages', 'Settings'],
   'set.meta': ['Effacer la localisation et l’auteur', 'Erase location and author'],
   'set.metaHint': [
-    'Activé : la position GPS, le nom de l’auteur et le modèle d’appareil sont retirés des fichiers. La classification (C1, C2, C3) est toujours conservée.',
-    'On: GPS position, author name and device model are removed from files. The classification (C1, C2, C3) is always kept.',
+    'La position GPS, le nom de l’auteur et le modèle d’appareil sont retirés des fichiers. La classification (C1, C2, C3) est toujours conservée.',
+    'GPS position, author name and device model are removed from files. The classification (C1, C2, C3) is always kept.',
   ],
   'set.macros': ['Accepter les fichiers avec macros', 'Accept files with macros'],
-  'set.macrosHint': ['Activé : les fichiers .pptm, .xlsm et .docm sont aussi compressés. Leurs macros restent intactes.', 'On: .pptm, .xlsm and .docm files are compressed too. Their macros stay intact.'],
+  'set.macrosHint': ['Les fichiers .pptm, .xlsm et .docm sont aussi compressés. Leurs macros restent intactes.', '.pptm, .xlsm and .docm files are compressed too. Their macros stay intact.'],
   'doc.modes': ['Les trois modes', 'The three modes'],
   'mode.lossless': ['le contenu reste identique, seule la façon de le ranger change.', 'the content stays identical, only the way it is stored changes.'],
   'mode.balanced': ['les images et vidéos sont réencodées, la différence ne se voit pas.', 'images and videos are re-encoded, the difference cannot be seen.'],
@@ -64,11 +69,11 @@ const TEXT = {
     'Before it is offered, every result is reopened and checked: images compared pixel by pixel in lossless mode, archives re-read entry by entry, documents reopened and internal links verified, videos read from start to end. At the slightest doubt, the original is kept.',
   ],
   'doc.tools': ['Outils utilisés', 'Tools used'],
-  'doc.toolsText': ['LocalCompress s’appuie sur ces projets publics et vérifiables :', 'LocalCompress relies on these public, auditable projects:'],
+  'doc.toolsText': ['LocalCompress s’appuie sur ces projets open source et maintenus à jour :', 'LocalCompress relies on these open-source, actively maintained projects:'],
   storage: ['Stockage temporaire sur cet ordinateur', 'Temporary storage on this computer'],
   purge: ['Vider le stockage temporaire', 'Empty temporary storage'],
   'doc.contact': ['Contact', 'Contact'],
-  'doc.contactText': ['Un bug, une idée de format ou d’amélioration ? Écrivez au développeur :', 'A bug, an idea for a format or an improvement? Write to the developer:'],
+  'doc.contactText': ['Un bug ou une idée d’amélioration ? Écrivez à un développeur :', 'A bug or an idea for an improvement? Write to a developer:'],
 } satisfies Record<string, [string, string]>;
 
 const CATEGORIES: Record<Category, [string, string]> = {
