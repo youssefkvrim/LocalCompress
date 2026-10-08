@@ -11,6 +11,48 @@ import { crc32 } from './crc32';
 export interface Sink {
   position: number;
   write(data: Uint8Array): void;
+  /** Optional zero-copy path for whole files (a Blob-backed sink). */
+  writeBlob?(data: Blob): void;
+}
+
+/** A sink that assembles an archive as a Blob, referencing files without reading them. */
+export class BlobSink implements Sink {
+  position = 0;
+  parts: BlobPart[] = [];
+  write(data: Uint8Array) {
+    this.parts.push(data as BlobPart);
+    this.position += data.length;
+  }
+  writeBlob(data: Blob) {
+    this.parts.push(data);
+    this.position += data.size;
+  }
+}
+
+/** Describe a new file to add to an archive (not taken from an existing one). */
+export function newEntry(name: string, when = new Date()): Entry {
+  const nameBytes = new TextEncoder().encode(name);
+  return {
+    index: 0,
+    nameBytes,
+    name,
+    madeBy: 20,
+    needed: 20,
+    flags: 0x800, // UTF-8 name
+    method: 0,
+    time: (when.getHours() << 11) | (when.getMinutes() << 5) | (when.getSeconds() >> 1),
+    date: ((when.getFullYear() - 1980) << 9) | ((when.getMonth() + 1) << 5) | when.getDate(),
+    crc: 0,
+    csize: 0,
+    usize: 0,
+    internal: 0,
+    external: 0,
+    offset: 0,
+    extra: new Uint8Array(0),
+    comment: new Uint8Array(0),
+    readable: true,
+    unsafe: false,
+  };
 }
 
 const MAX32 = 0xffffffff;
@@ -265,6 +307,17 @@ export class ZipWriter {
     this.out.write(this.header(e, withoutZip64(localExtra), big ? zip64([usize, data.length]) : new Uint8Array(0), flags, method, crc, big ? MAX32 : data.length, big ? MAX32 : usize, needed));
     this.out.write(data);
     this.written.push({ e, method, flags, crc, csize: data.length, usize, offset, needed });
+  }
+
+  /** Add a whole file, stored as is (it is already compressed). */
+  async putFile(e: Entry, file: Blob, crc: number) {
+    const big = file.size >= MAX32;
+    const offset = this.out.position;
+    const size = big ? MAX32 : file.size;
+    this.out.write(this.header(e, new Uint8Array(0), big ? zip64([file.size, file.size]) : new Uint8Array(0), 0x800, 0, crc, size, size, big ? 45 : 10));
+    if (this.out.writeBlob) this.out.writeBlob(file);
+    else for (let at = 0; at < file.size; at += 8 << 20) this.out.write(await bytes(file, at, Math.min(file.size, at + (8 << 20))));
+    this.written.push({ e, method: 0, flags: 0x800, crc, csize: file.size, usize: file.size, offset, needed: big ? 45 : 10 });
   }
 
   /**

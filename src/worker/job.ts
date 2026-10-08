@@ -7,6 +7,7 @@
  */
 import { lockDown } from '../security/guard';
 import { sniff, office } from '../lib/detect';
+import { crc32 } from '../lib/crc32';
 import { readZip } from '../lib/zip';
 import { openFile, removeJob, setSession } from '../lib/scratch';
 import { Skip, sanitize, type Check, type Engine, type FromWorker, type Job, type Result, type ToWorker } from '../lib/types';
@@ -64,6 +65,7 @@ self.onmessage = async ({ data }: MessageEvent<ToWorker>) => {
         checks,
         sha256In: await hashIn,
         sha256Out: await sha256(await openFile(out.path)),
+        crc32: await crcOf(out.file),
       },
     });
   } catch (e) {
@@ -85,6 +87,12 @@ async function pick(file: File): Promise<Engine> {
     return (await import('../engines/zip')).zipEngine;
   }
   throw new Skip('unsupported');
+}
+
+async function crcOf(file: Blob) {
+  let crc = 0;
+  for (let at = 0; at < file.size; at += 8 << 20) crc = crc32(new Uint8Array(await file.slice(at, at + (8 << 20)).arrayBuffer()), crc);
+  return crc;
 }
 
 function sha256(file: File): Promise<string | undefined> {

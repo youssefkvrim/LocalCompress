@@ -87,6 +87,8 @@ export interface Result {
   checks: Check[];
   sha256In?: string;
   sha256Out?: string;
+  /** CRC-32 of the output, so results can be zipped without being read again. */
+  crc32?: number;
 }
 
 export interface NetEntry {

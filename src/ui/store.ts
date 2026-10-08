@@ -6,6 +6,7 @@
  * contents or results.
  */
 import { getSession, openFile, removeJob } from '../lib/scratch';
+import { BlobSink, ZipWriter, newEntry } from '../lib/zip';
 import { sanitize, type FromWorker, type NetEntry, type Reason, type Result, type Settings } from '../lib/types';
 
 export interface Item {
@@ -101,19 +102,39 @@ function next() {
 
 /** Write the result where the user chooses. Bytes go from local disk to local disk. */
 export async function save(item: Item) {
-  const r = item.result!;
-  const file = await openFile(r.path);
+  await saveAs(await openFile(item.result!.path), item.result!.outputName);
+}
+
+/** Every result in one ZIP, named LocalCompress-HH-mm-ss.zip. Files are stored, not recompressed. */
+export async function saveAll() {
+  const done = store.items.filter((i) => i.result?.optimized);
+  const sink = new BlobSink();
+  const zip = new ZipWriter(sink);
+  const used = new Set<string>();
+  for (const item of done) {
+    const r = item.result!;
+    let name = r.outputName;
+    for (let n = 2; used.has(name); n++) name = r.outputName.replace(/(\.[^.]*)?$/, ` (${n})$1`);
+    used.add(name);
+    await zip.putFile(newEntry(name), await openFile(r.path), r.crc32!);
+  }
+  zip.finish(new Uint8Array(0));
+  const time = new Date().toTimeString().slice(0, 8).replaceAll(':', '-');
+  await saveAs(new Blob(sink.parts, { type: 'application/zip' }), `LocalCompress-${time}.zip`);
+}
+
+async function saveAs(file: Blob, name: string) {
   const pick = (window as { showSaveFilePicker?: (o: object) => Promise<FileSystemFileHandle> }).showSaveFilePicker;
   if (pick) {
     try {
-      const handle = await pick({ suggestedName: r.outputName });
+      const handle = await pick({ suggestedName: name });
       await file.stream().pipeTo(await handle.createWritable());
       return;
     } catch (e) {
       if ((e as DOMException).name === 'AbortError') return;
     }
   }
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(file), download: r.outputName });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(file), download: name });
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
 }
