@@ -17,7 +17,8 @@ import { saveBytes } from '../lib/scratch';
 import { Skip, type Engine, type Mode } from '../lib/types';
 
 const N = PDFName.of;
-const MAX_PDF = 1.5 * 1024 ** 3;
+/** pdf-lib holds the whole document in memory and rewrites it: keep it reasonable. */
+const MAX_PDF = 500 * 1024 ** 2;
 const LOSSY: Record<Mode, { quality: number; maxEdge: number } | null> = {
   lossless: null,
   balanced: { quality: 78, maxEdge: 2400 },
@@ -149,10 +150,23 @@ function isSigned(ctx: PDFContext): boolean {
 function stripMetadata(doc: PDFDocument) {
   const ctx = doc.context;
   const xmp = ctx.lookup(doc.catalog.get(N('Metadata')));
-  const xmpLabelled = xmp instanceof PDFRawStream && LABEL.test(new TextDecoder().decode(xmp.getContents().subarray(0, 4 << 20)));
-  if (!xmpLabelled) doc.catalog.delete(N('Metadata'));
+  // Keep the XMP packet when it holds a label or cannot be inspected safely.
+  const keep = xmp !== undefined && (!(xmp instanceof PDFRawStream) || mayHoldLabel(xmp));
+  if (!keep) doc.catalog.delete(N('Metadata'));
   const info = ctx.lookup(ctx.trailerInfo.Info);
   if (info instanceof PDFDict) for (const k of info.keys()) if (k.decodeText() !== 'Title' && !LABEL.test(k.decodeText())) info.delete(k);
+}
+
+/**
+ * True unless the whole XMP packet was read and holds no label. Too large,
+ * compressed with an unknown filter, or unreadable: assume it may.
+ */
+function mayHoldLabel(xmp: PDFRawStream): boolean {
+  const data = xmp.getContents();
+  if (data.length > 64 << 20 || xmp.dict.has(N('Filter'))) return true;
+  const text = new TextDecoder('latin1').decode(data);
+  // Labels in UTF-16 packets show up once the zero bytes are removed.
+  return LABEL.test(text) || LABEL.test(text.replace(/\0/g, ''));
 }
 
 /** Point every reference to identical streams (a logo on each page…) at one copy. */

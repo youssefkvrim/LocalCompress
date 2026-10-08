@@ -32,46 +32,56 @@ execFileSync(process.execPath, [join(root, 'scripts/sbom.mjs'), join(out, 'sbom'
 
 const headers = HEADERS;
 
-// ── nginx ───────────────────────────────────────────────────────────────
-const ngHeaders = Object.entries(headers)
-  .map(([k, v]) => `    add_header ${k} "${v}" always;`)
-  .join('\n');
+// ── nginx (unprivileged container: port 8080, TLS terminated by the platform) ──
+// In nginx, an add_header inside a location replaces the inherited ones, and
+// limit_except is only valid inside a location: so every location carries
+// the method restriction and the full set of headers.
+const location = (match, ...extra) =>
+  [
+    `    location ${match} {`,
+    '        limit_except GET { deny all; }   # GET implies HEAD; no other method reaches the files',
+    ...extra.map((l) => `        ${l}`),
+    ...Object.entries(headers).map(([k, v]) => `        add_header ${k} "${v}" always;`),
+    '    }',
+  ].join('\n');
 writeFileSync(
   join(out, 'deploy/nginx.conf'),
-  `# LocalCompress ${manifest.version} (build ${manifest.build}), static site, no server-side processing.
+  `# LocalCompress ${manifest.version} (build ${manifest.build}): static site, no server-side processing.
+# For the nginx-unprivileged image: copy to /etc/nginx/conf.d/default.conf.
 # The server only delivers application files. It never receives user files:
-# all non-GET methods are rejected and request bodies are limited to zero.
+# only GET/HEAD are allowed and request bodies are refused.
 server {
-    listen 443 ssl;
-    server_name localcompress.intranet.example;   # adapt
-    # ssl_certificate / ssl_certificate_key: internal PKI
-
-    root /srv/localcompress/site;
+    listen 8080;
+    server_name _;
+    root /usr/share/nginx/html;
     index index.html;
-    client_max_body_size 0k;
-    access_log /var/log/nginx/localcompress.access.log;   # URLs only, never bodies
+    server_tokens off;
+    client_max_body_size 1k;   # note: 0 would mean "unlimited" in nginx
 
-    limit_except GET HEAD { deny all; }
+${location('= /sw.js', 'add_header Cache-Control "no-cache" always;')}
 
-    types {
-        application/wasm wasm;
-        application/manifest+json webmanifest;
-    }
+${location('~ \\.wasm$', 'types { } default_type application/wasm;', 'add_header Cache-Control "public, max-age=31536000, immutable" always;')}
 
-${ngHeaders}
+${location('~ \\.webmanifest$', 'types { } default_type application/manifest+json;')}
 
-    location = /sw.js {
-        add_header Cache-Control "no-cache" always;
-${ngHeaders.replace(/^/gm, '    ')}
-    }
-    location /assets/ {
-        add_header Cache-Control "public, max-age=31536000, immutable" always;
-${ngHeaders.replace(/^/gm, '    ')}
-    }
-    location / {
-        try_files $uri $uri/ =404;
-    }
+${location('/assets/', 'add_header Cache-Control "public, max-age=31536000, immutable" always;')}
+
+${location('/', 'try_files $uri $uri/ =404;')}
 }
+`,
+);
+
+// ── Container image (OpenShift / Kubernetes, runs without root) ───────────
+writeFileSync(
+  join(out, 'deploy/Dockerfile'),
+  `# Build from the release folder: docker build -f deploy/Dockerfile .
+# BASE_IMAGE: point it at your internal registry proxy in CI if the build
+# machines have no Internet access.
+ARG BASE_IMAGE=nginxinc/nginx-unprivileged:stable-alpine
+FROM \${BASE_IMAGE}
+COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+COPY site/ /usr/share/nginx/html/
+EXPOSE 8080
 `,
 );
 

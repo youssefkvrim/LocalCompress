@@ -75,7 +75,7 @@ export const categoryIcon: Record<string, () => SVGElement> = {
   other: line('M7 3h7l5 5v13H7z', 'M14 3v5h5'),
 };
 
-/** The LocalCompress mark, same drawing as public/icon.svg. */
+/** The LocalCompress mark, same drawing as public/logo.svg. */
 export function logo() {
   const g = (attrs: Record<string, string | number>, ...d: string[]) => s('g', attrs, ...d.map((p) => s('path', { d: p })));
   return s(

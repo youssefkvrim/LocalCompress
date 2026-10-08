@@ -27,6 +27,7 @@ export const videoEngine: Engine = async (job) => {
     const duration = await input.computeDuration();
     const srcW = await video.getDisplayWidth();
     const srcH = await video.getDisplayHeight();
+    if (srcW * srcH > 7680 * 4320) throw new Skip('too-large'); // beyond 8K: refuse rather than exhaust memory
     const stats = await video.computePacketStats(240);
     const fps = Math.min(60, Math.max(1, Math.round(stats.averagePacketRate || 30)));
 

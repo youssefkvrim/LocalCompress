@@ -1,13 +1,14 @@
 /**
- * Application state and the job queue. Small files are processed several
- * at a time (one fresh worker each); a very large file runs alone, so
- * memory stays bounded.
+ * Application state and the job queue. Files are processed several at a
+ * time (one fresh worker each) while their estimated memory fits a budget;
+ * a file larger than the budget runs alone.
  *
  * Only the settings are persisted (in this browser). Never file names,
  * contents or results.
  */
 import { getSession, openFile, removeJob } from '../lib/scratch';
 import { BlobSink, ZipWriter, newEntry } from '../lib/zip';
+import { memoryBudget, memoryCost } from '../lib/cost';
 import { sanitize, type FromWorker, type NetEntry, type Reason, type Result, type Settings, type Step } from '../lib/types';
 
 export interface Item {
@@ -18,6 +19,8 @@ export interface Item {
   step: Step;
   /** When the current step started (performance.now()), for a fluid progress bar. */
   stepAt: number;
+  /** Estimated peak memory in bytes; unknown until the header is read. */
+  cost?: number;
   result?: Result;
   reason?: Reason;
   worker?: Worker;
@@ -60,8 +63,13 @@ export const store = {
   },
   add(files: Iterable<File>) {
     if (!headersOk()) return;
-    for (const file of files) store.items.push({ id: crypto.randomUUID(), file, state: 'waiting', progress: 0, step: 'compress', stepAt: 0 });
-    next();
+    for (const file of files) {
+      const item: Item = { id: crypto.randomUUID(), file, state: 'waiting', progress: 0, step: 'compress', stepAt: 0 };
+      store.items.push(item);
+      memoryCost(file)
+        .catch(() => Infinity)
+        .then((cost) => ((item.cost = cost), next()));
+    }
     store.emit();
   },
   async remove(item: Item) {
@@ -81,18 +89,20 @@ function load(): Settings {
   }
 }
 
-/** Files above this run alone; below it, up to PARALLEL run together. */
-const LARGE = 200 * 1024 * 1024;
+/** At most this many files at once, and never more estimated memory than the budget. */
 const PARALLEL = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1));
+const BUDGET = memoryBudget();
 
 export const pending = () => store.items.some((i) => i.state === 'waiting' || i.state === 'working');
 
+/** Start waiting files in order, as long as they fit (a file over the budget runs alone). */
 function next() {
   for (;;) {
     const working = store.items.filter((i) => i.state === 'working');
     const item = store.items.find((i) => i.state === 'waiting');
-    if (!item || working.length >= PARALLEL || working.some((i) => i.file.size > LARGE)) return;
-    if (item.file.size > LARGE && working.length) return;
+    if (!item || item.cost === undefined || working.length >= PARALLEL) return;
+    const used = working.reduce((n, i) => n + (i.cost ?? 0), 0);
+    if (working.length && used + item.cost > BUDGET) return;
     start(item);
   }
 }
@@ -122,6 +132,7 @@ function start(item: Item) {
     finish('failed');
   };
   worker.postMessage({ id: item.id, session: getSession(), file: item.file, settings: store.settings });
+  store.emit();
 }
 
 /** Write the result where the user chooses. Bytes go from local disk to local disk. */

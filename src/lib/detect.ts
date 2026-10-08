@@ -49,3 +49,34 @@ for (const [category, exts] of Object.entries({
 })) for (const ext of exts.split(' ')) CATEGORY_OF[ext] = category as Category;
 
 export const categoryOf = (name: string): Category => CATEGORY_OF[name.split('.').pop()?.toLowerCase() ?? ''] ?? 'other';
+
+/**
+ * Width and height of a JPEG or PNG read from its header only, before any
+ * decoding (a small file can declare a gigantic image). Null if unreadable.
+ */
+export function imageSize(b: Uint8Array, format: 'jpeg' | 'png'): { width: number; height: number; animated: boolean } | null {
+  const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  try {
+    if (format === 'png') return { width: v.getUint32(16), height: v.getUint32(20), animated: pngChunkTypes(b).includes('acTL') };
+    for (let p = 2; p + 9 < b.length; ) {
+      if (b[p] !== 0xff) return null;
+      const m = b[p + 1];
+      if (m === 0xd8 || m === 0x01 || (m >= 0xd0 && m <= 0xd7) || m === 0xff) {
+        p += m === 0xff ? 1 : 2;
+        continue;
+      }
+      if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { height: v.getUint16(p + 5), width: v.getUint16(p + 7), animated: false };
+      p += 2 + v.getUint16(p + 2);
+    }
+  } catch {
+    /* truncated */
+  }
+  return null;
+}
+
+function pngChunkTypes(png: Uint8Array): string[] {
+  const v = new DataView(png.buffer, png.byteOffset, png.byteLength);
+  const types: string[] = [];
+  for (let p = 8; p + 12 <= png.length; p += 12 + v.getUint32(p)) types.push(String.fromCharCode(...png.subarray(p + 4, p + 8)));
+  return types;
+}

@@ -17,8 +17,9 @@ Package contents:
 ```
 release/localcompress-<version>-<build>/
   site/                  publish this directory
-    index.html  sw.js  asset-manifest.json  manifest.webmanifest  icon.svg  assets/…
-  deploy/nginx.conf      reference server block
+    index.html  sw.js  asset-manifest.json  manifest.webmanifest  logo.svg  assets/…
+  deploy/nginx.conf      server block for the nginx-unprivileged image (port 8080)
+  deploy/Dockerfile      container image: nginx-unprivileged + site/ + nginx.conf
   deploy/web.config      IIS configuration (copy into site/)
   sbom/                  CycloneDX SBOM, LICENSES.md, wasm-binaries.json
   SHA256SUMS             checksum of every file in the package
@@ -46,9 +47,17 @@ Verify before publishing: `sha256sum -c SHA256SUMS` (Linux) or `Get-FileHash` (P
 3. Ensure *Request Filtering* is installed (the config restricts verbs and sets `maxAllowedContentLength=0`).
 4. Browse to the site: the Privacy & Security panel must show *Service worker: Active* and the capability list must show *WASM threads ✓* (proves COOP/COEP are effective).
 
-### nginx
+### nginx / container platform (OpenShift, Kubernetes)
 
-Include `deploy/nginx.conf`, adapt `server_name`, certificate paths and `root`.
+`deploy/Dockerfile` builds an image that runs without root on port 8080, from the release folder:
+
+```bash
+docker build -f deploy/Dockerfile -t localcompress .
+```
+
+If the build machines have no Internet access, pass `--build-arg BASE_IMAGE=<your internal registry proxy>/nginxinc/nginx-unprivileged:stable-alpine`. HTTPS is terminated by the platform (route / ingress). The config is `deploy/nginx.conf` (copied to `/etc/nginx/conf.d/default.conf`): every location repeats the security headers and the GET-only restriction, because nginx does not inherit `add_header` into a location that sets its own, and only accepts `limit_except` inside a location.
+
+On a classic nginx host, include the same server block and change `listen` and `root`.
 
 ## 3. Sub-path hosting
 

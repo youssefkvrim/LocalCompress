@@ -11,6 +11,7 @@ import { optimizeJpegLossless, sameCoefficients } from './jpeg';
 import { crc32 } from '../lib/crc32';
 import { inflate, zlibBest } from '../lib/deflate';
 import { saveBytes } from '../lib/scratch';
+import { imageSize } from '../lib/detect';
 import { Skip, type Check, type Engine, type Mode } from '../lib/types';
 
 type Format = 'jpeg' | 'png';
@@ -33,7 +34,7 @@ export interface Optimized {
 
 /** Best candidate for one image, with the checks that prove it. Null when nothing beats the original. */
 export async function optimizeImage(bytes: Uint8Array, format: Format, mode: Mode, strip: boolean, maxEdge?: number): Promise<Optimized | null> {
-  const size = dimensions(bytes, format);
+  const size = imageSize(bytes, format);
   if (!size) throw new Skip('unreadable');
   if (size.animated) throw new Skip('animated');
   if (size.width * size.height > MAX_PIXELS) throw new Skip('too-large');
@@ -69,35 +70,6 @@ export const imageEngine: Engine = async (job) => {
   const ext = format === 'jpeg' ? 'jpg' : 'png';
   return { ...(await saveBytes(job.id, `out.${ext}`, r.bytes)), ext, engine: r.engine, lossless: r.lossless };
 };
-
-// ── Header probing ────────────────────────────────────────────────────────
-
-function dimensions(b: Uint8Array, format: Format): { width: number; height: number; animated: boolean } | null {
-  const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
-  try {
-    if (format === 'png') return { width: v.getUint32(16), height: v.getUint32(20), animated: chunkTypes(b).includes('acTL') };
-    for (let p = 2; p + 9 < b.length; ) {
-      if (b[p] !== 0xff) return null;
-      const m = b[p + 1];
-      if (m === 0xd8 || m === 0x01 || (m >= 0xd0 && m <= 0xd7) || m === 0xff) {
-        p += m === 0xff ? 1 : 2;
-        continue;
-      }
-      if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { height: v.getUint16(p + 5), width: v.getUint16(p + 7), animated: false };
-      p += 2 + v.getUint16(p + 2);
-    }
-  } catch {
-    /* truncated */
-  }
-  return null;
-}
-
-function chunkTypes(png: Uint8Array): string[] {
-  const v = new DataView(png.buffer, png.byteOffset, png.byteLength);
-  const types: string[] = [];
-  for (let p = 8; p + 12 <= png.length; p += 12 + v.getUint32(p)) types.push(String.fromCharCode(...png.subarray(p + 4, p + 8)));
-  return types;
-}
 
 // ── PNG ───────────────────────────────────────────────────────────────────
 
