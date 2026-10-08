@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CSP, HEADERS } from '../src/security/csp';
 import { allowed } from '../src/security/guard';
 import { DEFAULTS, sanitize } from '../src/lib/types';
+import { safeName } from '../src/lib/names';
 
 const origin = 'https://localcompress.intranet.example';
 const u = (p: string) => new URL(p, origin);
@@ -39,5 +40,14 @@ describe('settings', () => {
     expect(sanitize(null)).toEqual(DEFAULTS);
     expect(sanitize({ mode: '__proto__', allowMacros: 'yes' })).toEqual(DEFAULTS);
     expect(DEFAULTS).toEqual({ mode: 'lossless', stripMetadata: true, allowMacros: false });
+  });
+});
+
+describe('file names', () => {
+  it('cannot disguise an extension or become a path', () => {
+    expect(safeName('facture\u202Egpj.exe')).toBe('facturegpj.exe');
+    expect(safeName('..\\..\\Windows\\evil.dll')).toBe('_.._Windows_evil.dll');
+    expect(safeName('a/b:c?.pdf')).toBe('a_b_c_.pdf');
+    expect(safeName('')).toBe('file');
   });
 });

@@ -1,0 +1,16 @@
+TODO: add SSO (Safran single sign-on)
+
+Put Safran SSO in front of the LocalCompress site, so only authenticated
+Safran users can load the application.
+
+Notes for whoever implements it:
+- SSO protects the delivery of the application only. The compression
+  itself never contacts any server, so no file or file name is involved.
+- Do it at the web server / reverse proxy level (e.g. the intranet SSO
+  gateway in front of nginx or IIS). The application code needs no change.
+- Keep the security headers from deploy/ (CSP, COOP, COEP, etc.) on every
+  response, including after the SSO redirect, or the app refuses to run.
+- The SSO domain must not be added to the CSP: the app itself must never
+  talk to it.
+- Check that offline use still works after the first authenticated load
+  (the service worker serves the cached application).

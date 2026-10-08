@@ -59,6 +59,7 @@ export const officeEngine: Engine = async (job) => {
 
 /** Empty the text of the given XML elements; the structure stays identical. */
 function clear(xml: Uint8Array, tags: string[]) {
+  if (xml.length > 1 << 20) return null; // real metadata parts are tiny; leave anything odd untouched
   const text = new TextDecoder().decode(xml);
   const re = new RegExp(`<(${tags.join('|')})>[\\s\\S]*?</\\1>`, 'g');
   return new TextEncoder().encode(text.replace(re, '<$1></$1>'));

@@ -84,7 +84,10 @@ async function optimizeJpegStream(ctx: PDFContext, ref: PDFRef, s: PDFRawStream,
   if (lossless && sameCoefficients(s.contents, lossless.bytes)) best = { data: lossless.bytes };
 
   const gray = colorComponents(ctx, s.dict);
-  if (lossy && gray !== null && !s.dict.has(N('Decode')) && !(s.dict.get(N('Mask')) instanceof PDFArray)) {
+  const w = s.dict.lookup(N('Width'));
+  const h = s.dict.lookup(N('Height'));
+  const pixels = w instanceof PDFNumber && h instanceof PDFNumber ? w.asNumber() * h.asNumber() : Infinity;
+  if (lossy && gray !== null && pixels <= 120_000_000 && !s.dict.has(N('Decode')) && !(s.dict.get(N('Mask')) instanceof PDFArray)) {
     const bmp = await createImageBitmap(new Blob([s.contents as BlobPart], { type: 'image/jpeg' }), { colorSpaceConversion: 'none', imageOrientation: 'none' });
     const scale = Math.min(1, lossy.maxEdge / Math.max(bmp.width, bmp.height));
     const width = Math.max(1, Math.round(bmp.width * scale));

@@ -168,8 +168,7 @@ a { color: inherit; }
 .tools a .i { width: 14px; height: 14px; }
 .tools span { color: var(--grey); }
 .version { margin: 16px 0 0 !important; text-align: center; font-size: 12px !important; }
-.danger { color: var(--bad); }
-.danger:hover { background: #fdecea; color: var(--bad); }
+.icon-btn.danger .i, .icon-btn.danger:hover .i { color: var(--bad); }
 .tech { padding-top: 16px; }
 .tech summary { cursor: pointer; font-weight: 600; font-size: 15px; }
 .tech h4 { margin: 18px 0 8px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--grey); }

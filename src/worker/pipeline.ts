@@ -6,6 +6,7 @@
  */
 import { sniff, office } from '../lib/detect';
 import { crc32 } from '../lib/crc32';
+import { safeName } from '../lib/names';
 import { readZip } from '../lib/zip';
 import { openFile, removeJob, setSession } from '../lib/scratch';
 import { Skip, sanitize, type Check, type Engine, type FromWorker, type Job, type Result, type ToWorker } from '../lib/types';
@@ -27,7 +28,7 @@ export async function run(data: ToWorker, post: Post) {
     lossless: true,
     inputSize: file.size,
     outputSize: file.size,
-    outputName: file.name,
+    outputName: safeName(file.name),
     path: [],
     engine: '',
     checks,
@@ -63,7 +64,7 @@ export async function run(data: ToWorker, post: Post) {
       post({ type: 'result', result: await skipped('already-optimal') });
       return;
     }
-    const name = file.name.replace(/\.[^.]*$/, '') || 'file';
+    const name = safeName(file.name).replace(/\.[^.]*$/, '') || 'file';
     post({
       type: 'result',
       result: {
