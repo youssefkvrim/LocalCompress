@@ -3,8 +3,12 @@ import { lockDown } from './security/guard';
 import { claimSession, purgeOrphans, purgeSession } from './lib/scratch';
 import { store } from './ui/store';
 import { mountApp } from './ui/app';
-import '@fontsource-variable/geist';
-import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource/poppins/latin-400.css';
+import '@fontsource/poppins/latin-ext-400.css';
+import '@fontsource/poppins/latin-500.css';
+import '@fontsource/poppins/latin-ext-500.css';
+import '@fontsource/poppins/latin-600.css';
+import '@fontsource/poppins/latin-ext-600.css';
 import './ui/style.css';
 
 lockDown('page', store.net, import.meta.env.PROD);

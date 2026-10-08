@@ -106,9 +106,12 @@ const PNG_METADATA = new Set(['tEXt', 'zTXt', 'iTXt', 'eXIf', 'tIME']);
 async function optimizePng(png: Uint8Array, strip: boolean): Promise<Uint8Array> {
   let best = png;
   try {
-    const { default: optimise } = await import('@jsquash/oxipng/optimise.js');
-    // optimiseAlpha=false keeps the colour of fully transparent pixels: strictly lossless.
-    const ox = new Uint8Array(await optimise(png.slice().buffer, { level: 3, interlace: false, optimiseAlpha: false }));
+    // Single-threaded build: no nested worker pool (which escaped the egress
+    // guard and hung in recent Chromium). optimize_alpha=false keeps the colour
+    // of fully transparent pixels: strictly lossless.
+    const oxipng = await import('@jsquash/oxipng/codec/pkg/squoosh_oxipng.js');
+    await oxipng.default();
+    const ox = oxipng.optimise(png, 3, false, false);
     if (ox.length < best.length) best = ox;
   } catch {
     /* keep the original */
