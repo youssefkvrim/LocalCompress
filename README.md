@@ -13,14 +13,16 @@ Remplace les outils en ligne (iLovePDF, TinyPNG…) pour les documents C1–C3. 
 | Équilibré | Bien plus léger, différence invisible |
 | Compact | Le plus léger possible |
 
-Formats : JPEG · PNG · WebP · AVIF · MP4 · MOV · MKV · WebM · PDF · ZIP · PPTX · XLSX · DOCX.
+Formats : JPEG · PNG · MP4 · MOV · MKV · WebM · PDF · ZIP · PPTX · XLSX · DOCX.
 
 ```bash
 npm ci && npm run dev        # développement
-npm run build && npm run preview
-npm test
+npm run build                # contrôle des types, build, audit de la chaîne d’approvisionnement
+npm test                     # npm run fixtures d’abord pour les tests sur vrais fichiers
 npm run package              # paquet de déploiement (site, nginx/IIS, SBOM, SHA256SUMS)
 ```
+
+Le code tient dans `src/` : `lib/` (outils), `engines/` (un fichier par format), `security/`, `worker/`, `ui/`. Voir [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## English
 
@@ -35,7 +37,7 @@ Replaces online tools for C1–C3 documents. The intranet server only delivers t
 | ZIP, Office XML, PDF streams | libdeflate level 12 (≈ Zopfli, ~20 % smaller than zlib -9) | CRC-32 of every entry / reparse |
 | PDF | lossless JPEG, stream re-deflate, duplicate-stream merge, object streams, unused objects | reparse, page count |
 
-Lossy modes add MozJPEG / WebP / AVIF and hardware video encoding (WebCodecs H.264 / HEVC / AV1).
+Lossy modes add MozJPEG and hardware H.264 video encoding (WebCodecs).
 
 **Zero upload**, enforced in layers: no code path sends data; CSP with no remote origin; egress guard in page and workers; service-worker firewall (also makes the app work offline); server accepts GET only.
 
@@ -46,4 +48,4 @@ Lossy modes add MozJPEG / WebP / AVIF and hardware video encoding (WebCodecs H.2
 | [Architecture](docs/ARCHITECTURE.md) · [Format matrix](docs/FORMAT_MATRIX.md) · [Technical investigation](docs/TECH_INVESTIGATION.md) | |
 | [Deployment](docs/DEPLOYMENT.md) · [Maintenance](docs/MAINTENANCE.md) · [Benchmarks](benchmarks/README.md) · [SBOM](sbom/LICENSES.md) | |
 
-Status: PoC 0.2 — independent verification and C3 review pending.
+Status: PoC 0.3 — independent verification and C3 review pending.

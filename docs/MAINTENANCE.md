@@ -18,7 +18,7 @@ npm audit --omit=dev
 npm i -E <pkg>@<version> -w <workspace>
 npm run typecheck && npm test
 npm run build                 # dist audit must pass
-node scripts/make-fixtures.mjs && # manual check of each format in the browser
+npm run fixtures            # then a manual check of each format in the browser
 npm run package
 ```
 
@@ -30,9 +30,9 @@ The jSquash packages ship prebuilt WASM from the Squoosh codec sources (Emscript
 
 1. Check out `jamsinclair/jSquash` at the tag matching the pinned version, and the referenced codec submodules (mozjpeg, libwebp, libavif, oxipng).
 2. Build with the pinned Emscripten / Rust toolchain in an isolated container (Dockerfiles live in each `codec/` directory upstream).
-3. Compare SHA-256 against `sbom/wasm-binaries.json`. If they differ (toolchain non-determinism), place the in-house builds under `wasm/image-codecs/` and alias them in `apps/web/vite.config.ts`.
+3. Compare SHA-256 against `sbom/wasm-binaries.json`. If they differ (toolchain non-determinism), place the in-house builds under `wasm/image-codecs/` and alias them in `vite.config.ts`.
 
-Mediabunny, pdf-lib, fflate and hash-wasm are JavaScript (hash-wasm embeds small WASM blobs built from its own repository's C sources).
+Mediabunny and pdf-lib are JavaScript; libdeflate and hash-wasm embed small WASM modules built from their own sources (hash-wasm embeds small WASM blobs built from its own repository's C sources).
 
 ## 4. Releasing an update to users
 

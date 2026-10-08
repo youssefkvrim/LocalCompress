@@ -1,4 +1,6 @@
-# Technical investigation — engine & platform comparison (PoC)
+# Technical investigation
+
+> Historical PoC comparison. Since v0.3 the shipped set is deliberately smaller: WebP/AVIF output, HEVC/AV1, the custom preset, the ZIP size estimator and PDF Flate→JPEG conversion were removed for simplicity; fflate is used by tests only. — engine & platform comparison (PoC)
 
 Goal (brief §23): show that a representative multi-GB file can be processed entirely locally, with zero network transmission and acceptable workstation performance, and choose engines accordingly.
 
@@ -21,7 +23,7 @@ Legend: ✅ adopted · 🟡 adopted with limits · ⏸ deferred · ❌ rejected
 
 | Technique | Status | Result on test set |
 |---|---|---|
-| **JPEG entropy re-coding** (optimal Huffman, Annex K.2; progressive with successive approximation, libjpeg script) | ✅ in-house TypeScript (`packages/image/src/jpeg-lossless.ts`) | −2 % to −17 %; **byte-for-byte the same savings as `jpegtran -optimize -progressive`**; pixel-identical in libjpeg-turbo |
+| **JPEG entropy re-coding** (optimal Huffman, Annex K.2; progressive with successive approximation, libjpeg script) | ✅ in-house TypeScript (`src/engines/jpeg.ts`) | −2 % to −17 %; **byte-for-byte the same savings as `jpegtran -optimize -progressive`**; pixel-identical in libjpeg-turbo |
 | JPEG XL lossless transcoding (−20 %, reversible) | ⏸ | Output is `.jxl`, not readable by Office/PDF/most Windows apps → not a drop-in replacement |
 | **OxiPNG** + **libdeflate 12** IDAT re-compression (the `oxipng -Z` idea, faster than Zopfli) | ✅ | −8 % to −12 % on PNGs, pixel-identical |
 | **libdeflate level 12** for every DEFLATE stream (ZIP entries, OOXML parts, PDF Flate, PNG) | ✅ | ~20 % smaller than zlib/fflate level 9 on text; even "already compressed" ZIPs gain ~3 % |

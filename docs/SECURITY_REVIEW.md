@@ -10,7 +10,7 @@ Status legend: **Fixed** (in this commit) · **Mitigated** (reduced, residual ri
 |---|---|---|---|
 | S1 | **High** | Metadata stripping removed **sensitivity labels** (Purview/AIP `MSIP_Label_*`, classification XMP) from PDFs → a C3 document could come out unlabelled and slip past DLP | **Fixed** |
 | S2 | **High** | Scratch storage shared by all tabs: opening or closing one tab **deleted another tab's results**; startup purge raced with a new job | **Fixed** |
-| S3 | **Medium** | PDF: lossless images with PNG predictors trusted `/Colors` and `/Columns` from the file; a mismatch would re-encode **garbage pixels** that still pass decode checks | **Fixed** |
+| S3 | **Medium** | PDF: lossless images with PNG predictors trusted `/Colors` and `/Columns` from the file; a mismatch would re-encode **garbage pixels** that still pass decode checks | **Fixed** — the Flate→JPEG conversion was later removed entirely (v0.3) |
 | S4 | **Medium** | PDF signature detection required `/Type /Sig`, which is optional → some **signed PDFs would be modified** and their signature broken | **Fixed** |
 | S5 | **Medium** | Egress guard could be bypassed by spawning a worker from a `blob:` URL (fresh globals, no guard) | **Fixed** |
 | S6 | **Medium** | Emscripten glue of a compression engine was bundled into the **page** (main thread), where navigation-based exfiltration cannot be blocked | **Fixed** |
@@ -50,7 +50,7 @@ Status legend: **Fixed** (in this commit) · **Mitigated** (reduced, residual ri
 | Scenario | Assessment |
 |---|---|
 | Removing author/metadata to hide a document's origin | Possible by design (privacy). Labels are now kept (S1). If needed, add a policy switch to *forbid* metadata removal on classified documents. |
-| Converting images to AVIF/WebP to evade image fingerprinting DLP | Marginal; outputs stay on the workstation, DLP still applies when they move. Option: disable format conversion by policy. |
+| Converting images to other formats to evade image-fingerprinting DLP | Not possible since v0.3: formats are never changed. |
 | Shrinking files to exfiltrate them through size-limited channels (mail, USB quotas) | Real but generic to any compressor (Windows ZIP does the same). Not a LocalCompress-specific risk. |
 | Using LocalCompress as a "trusted" brand on an external copy (S17) | The biggest social-engineering risk. Mitigation: single official intranet URL, browser `URLAllowlist`/certificate, communication. |
 | Lossy modes on legal/engineering documents (loss of fine detail in scans/drawings) | Default is now **Sans perte**; lossy modes are explicit. Lossy outputs carry no "sans perte" badge. |

@@ -3,13 +3,13 @@
  * Produce the internal deployment package:
  *
  *   release/localcompress-<version>-<build>/
- *     site/                 static files to publish (from apps/web/dist)
+ *     site/                 static files to publish (from dist/)
  *     deploy/nginx.conf     server block with all security headers
  *     deploy/web.config     IIS configuration with the same headers
  *     sbom/                 CycloneDX SBOM + license inventory
  *     SHA256SUMS            checksums of every file in the package
  *
- * Headers are generated from packages/security/src/csp.ts — the same
+ * Headers are generated from src/security/csp.ts — the same
  * source the application and the preview server use — so they cannot drift.
  * Requires Node ≥ 22.18 (native TypeScript type stripping).
  */
@@ -17,10 +17,10 @@ import { createHash } from 'node:crypto';
 import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { securityHeaders } from '../packages/security/src/csp.ts';
+import { HEADERS } from '../src/security/csp.ts';
 
 const root = join(import.meta.dirname, '..');
-const dist = join(root, 'apps/web/dist');
+const dist = join(root, 'dist');
 const manifest = JSON.parse(readFileSync(join(dist, 'asset-manifest.json'), 'utf8'));
 const name = `localcompress-${manifest.version}-${manifest.build}`;
 const out = join(root, 'release', name);
@@ -30,7 +30,7 @@ mkdirSync(join(out, 'deploy'), { recursive: true });
 cpSync(dist, join(out, 'site'), { recursive: true });
 execFileSync(process.execPath, [join(root, 'scripts/sbom.mjs'), join(out, 'sbom')], { stdio: 'inherit' });
 
-const headers = securityHeaders();
+const headers = HEADERS;
 
 // ── nginx ───────────────────────────────────────────────────────────────
 const ngHeaders = Object.entries(headers)

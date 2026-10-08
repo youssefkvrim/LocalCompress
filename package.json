@@ -1,28 +1,32 @@
 {
   "name": "localcompress",
+  "version": "0.3.0",
   "private": true,
-  "version": "0.2.0",
-  "description": "Secure, local-first file optimization. The file stays on the workstation. Always.",
+  "description": "Le fichier reste ici. Local-first file compression: nothing is ever uploaded.",
   "license": "UNLICENSED",
   "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "engines": {
-    "node": ">=22.18"
-  },
+  "engines": { "node": ">=22.18" },
   "scripts": {
-    "dev": "npm run dev -w @localcompress/web",
-    "build": "npm run build -w @localcompress/web && node scripts/audit-dist.mjs apps/web/dist",
-    "preview": "npm run preview -w @localcompress/web",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && node scripts/audit.mjs",
+    "preview": "vite preview",
     "test": "vitest run",
-    "sbom": "node scripts/sbom.mjs",
+    "fixtures": "node scripts/fixtures.mjs",
     "package": "npm run build && node scripts/package.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "5.3.0",
+    "@fontsource/instrument-serif": "5.3.0",
+    "@jsquash/jpeg": "1.6.0",
+    "@jsquash/oxipng": "2.3.0",
+    "hash-wasm": "4.12.0",
+    "libdeflate": "0.1.0",
+    "mediabunny": "1.61.3",
+    "pdf-lib": "1.17.1"
   },
   "devDependencies": {
     "@types/node": "24.19.1",
+    "fflate": "0.8.3",
     "typescript": "7.0.2",
     "vite": "8.3.3",
     "vitest": "5.0.3"
