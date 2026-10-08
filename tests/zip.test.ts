@@ -6,7 +6,8 @@ import { join } from 'node:path';
 import { strToU8, unzipSync, zipSync } from 'fflate';
 import { readZip } from '../src/lib/zip';
 import { rewrite, verify } from '../src/engines/zip';
-import { office, sniff } from '../src/lib/detect';
+import { imageSize, office, sniff } from '../src/lib/detect';
+import { memoryCost } from '../src/lib/cost';
 import { Memory, fixture, tool } from './helpers';
 
 const text = (n: number) => strToU8('LocalCompress keeps the file on the workstation. '.repeat(n));
@@ -72,6 +73,15 @@ describe('detection', () => {
   it('reads bytes, not extensions', () => {
     expect(sniff(new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])).format).toBe('png');
     expect(sniff(strToU8('%PDF-1.7')).kind).toBe('pdf');
+  });
+  it('reads image dimensions from the header and costs a file by its pixels', async () => {
+    const path = fixture('photo.png');
+    if (!path) return;
+    const png = new Uint8Array(readFileSync(path));
+    expect(imageSize(png, 'png')).toEqual({ width: 1600, height: 1200, animated: false });
+    // A 4 MB file that decodes to 1.9 megapixels costs far more than its size.
+    expect(await memoryCost(new File([png], 'x.png'))).toBeGreaterThan(1600 * 1200 * 16);
+    expect(await memoryCost(new File([new Uint8Array(10)], 'x.bin'))).toBe(20);
   });
   it('recognises Office packages', () => {
     expect(office(['[Content_Types].xml', 'ppt/presentation.xml'])).toEqual({ ext: 'pptx', macro: false });
