@@ -1,0 +1,1002 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:0b24cb85-5fa9-4e75-9634-7725de837e3e",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-08T10:42:17.555Z",
+    "lifecycles": [
+      {
+        "phase": "build"
+      }
+    ],
+    "tools": [
+      {
+        "vendor": "npm",
+        "name": "cli",
+        "version": "11.19.1"
+      }
+    ],
+    "component": {
+      "bom-ref": "localcompress@0.2.0",
+      "type": "application",
+      "name": "LocalCompress",
+      "version": "0.2.0",
+      "scope": "required",
+      "description": "Secure, local-first file optimization. The file stays on the workstation. Always.",
+      "purl": "pkg:npm/localcompress@0.2.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "@localcompress/web@0.1.0",
+      "type": "library",
+      "name": "web",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40localcompress/web@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    },
+    {
+      "bom-ref": "@fontsource-variable/geist@5.3.0",
+      "type": "library",
+      "name": "@fontsource-variable/geist",
+      "version": "5.3.0",
+      "scope": "required",
+      "author": "Google Inc.",
+      "description": "Self-host the Geist font in a neatly bundled NPM package.",
+      "purl": "pkg:npm/%40fontsource-variable/geist@5.3.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@fontsource-variable/geist/-/geist-5.3.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/fontsource/font-files.git"
+        },
+        {
+          "type": "website",
+          "url": "https://fontsource.org/fonts/geist"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "8f49bebcb42e1b95c06281ed18256ed2ca6f946ade477133a44094573905988d664d59c03b7f25fcd10f0c2160675efb271cd82422d29934226c88983e2946ac"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@fontsource-variable/geist-mono@5.3.0",
+      "type": "library",
+      "name": "@fontsource-variable/geist-mono",
+      "version": "5.3.0",
+      "scope": "required",
+      "author": "Google Inc.",
+      "description": "Self-host the Geist Mono font in a neatly bundled NPM package.",
+      "purl": "pkg:npm/%40fontsource-variable/geist-mono@5.3.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@fontsource-variable/geist-mono/-/geist-mono-5.3.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/fontsource/font-files.git"
+        },
+        {
+          "type": "website",
+          "url": "https://fontsource.org/fonts/geist-mono"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "bc16eec03128f4092ba800cc5ceae5011dc315c262e3f2717ae538dc5a22404467370b1f5cd9efc6f45e646d367102a6ca4e0366465d0595f7a130efcb6cc103"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@fontsource/instrument-serif@5.3.0",
+      "type": "library",
+      "name": "@fontsource/instrument-serif",
+      "version": "5.3.0",
+      "scope": "required",
+      "author": "Google Inc.",
+      "description": "Self-host the Instrument Serif font in a neatly bundled NPM package.",
+      "purl": "pkg:npm/%40fontsource/instrument-serif@5.3.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@fontsource/instrument-serif/-/instrument-serif-5.3.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/fontsource/font-files.git"
+        },
+        {
+          "type": "website",
+          "url": "https://fontsource.org/fonts/instrument-serif"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "98389a220d2eebbb18579f5f89ef765b3e2c33c5225656cbedf2f19c53c22a45f5e433004849d04d111b68fe52e7fdc309cb2800e710d2c57d13801e63842a61"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@jsquash/avif@2.1.1",
+      "type": "library",
+      "name": "@jsquash/avif",
+      "version": "2.1.1",
+      "scope": "required",
+      "author": "Jamie Sinclair",
+      "description": "Wasm AVIF encoder and decoder supporting the browser. Repackaged from Squoosh App.",
+      "purl": "pkg:npm/%40jsquash/avif@2.1.1",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@jsquash/avif/-/avif-2.1.1.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "2cc4717747cc81f08bb686c3874fec15824c3224494cd6121045af443297940799d3cb77808e55fb5b61213d178d727e4951bb66e83d0745cfcb1d138b955134"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@jsquash/jpeg@1.6.0",
+      "type": "library",
+      "name": "@jsquash/jpeg",
+      "version": "1.6.0",
+      "scope": "required",
+      "author": "Jamie Sinclair",
+      "description": "Wasm jpeg encoder and decoder supporting the browser. Repackaged from Squoosh App.",
+      "purl": "pkg:npm/%40jsquash/jpeg@1.6.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@jsquash/jpeg/-/jpeg-1.6.0.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "cf0378e80c21d5533a8179487002f06f95b3a8ae47d9eebe03072cd503fc02f4bca21b0afec6c4e1eb2f987e23865856efe0a0894530c3aeaf8346939e548830"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@jsquash/oxipng@2.3.0",
+      "type": "library",
+      "name": "@jsquash/oxipng",
+      "version": "2.3.0",
+      "scope": "required",
+      "author": "Jamie Sinclair",
+      "description": "Wasm png optimiser supporting the browser. Repackaged from Squoosh App.",
+      "purl": "pkg:npm/%40jsquash/oxipng@2.3.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@jsquash/oxipng/-/oxipng-2.3.0.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "690f30884a7aced95331773e44cb7f086f1cad4de61070d4fa1f89624222e9cb4c86587cf8bb63e57c1015f06ecb3298ae9f0dc5a156f340e9f36e1baa3afecc"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@jsquash/webp@1.5.0",
+      "type": "library",
+      "name": "@jsquash/webp",
+      "version": "1.5.0",
+      "scope": "required",
+      "author": "Jamie Sinclair",
+      "description": "Wasm webp encoder and decoder supporting the browser. Repackaged from Squoosh App.",
+      "purl": "pkg:npm/%40jsquash/webp@1.5.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@jsquash/webp/-/webp-1.5.0.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "2a080ba23d8c9d149f22a4de29ed4499b9634d7dafb95ee687bf64f3d3c22f5a72aa20d42dc3ccd4be3bb70c57b748646faf05ef46d788bdf5331b2ea19b4a17"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@pdf-lib/standard-fonts@1.0.0",
+      "type": "library",
+      "name": "@pdf-lib/standard-fonts",
+      "version": "1.0.0",
+      "scope": "required",
+      "author": "Andrew Dillon <andrew.dillon.j@gmail.com>",
+      "description": "Metrics for the Standard 14 PDF fonts and their encodings",
+      "purl": "pkg:npm/%40pdf-lib/standard-fonts@1.0.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@pdf-lib/standard-fonts/-/standard-fonts-1.0.0.tgz"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/Hopding/standard-fonts"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "854df404af4850dfecbb4327f5576554ab16052e86ca155faa3c25d458d93784f13fa702c348cfdb0ed5dc77f9b97eccd00649d7abdecbdc84d27cbb49ae7d64"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@pdf-lib/upng@1.0.1",
+      "type": "library",
+      "name": "@pdf-lib/upng",
+      "version": "1.0.1",
+      "scope": "required",
+      "author": "photopea (https://github.com/photopea)",
+      "description": "Small, fast and advanced PNG / APNG encoder and decoder",
+      "purl": "pkg:npm/%40pdf-lib/upng@1.0.1",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@pdf-lib/upng/-/upng-1.0.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Hopding/upng"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "7502b6154310b68c153f4d26b4892cae56617455d064f0beb5a8a1d6ae02bcf679bea77147f2ca05a160d2801fcddd469476575d23dd41fcd09edf95886bc421"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@types/dom-mediacapture-transform@0.1.12",
+      "type": "library",
+      "name": "@types/dom-mediacapture-transform",
+      "version": "0.1.12",
+      "scope": "required",
+      "description": "TypeScript definitions for dom-mediacapture-transform",
+      "purl": "pkg:npm/%40types/dom-mediacapture-transform@0.1.12",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@types/dom-mediacapture-transform/-/dom-mediacapture-transform-0.1.12.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/dom-mediacapture-transform"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "77bfd0b0b47017ceb80399a020cfd8adf8a0947a189fbce009c0282605b8d38afed83c2736bec405b2e7096a6638c807f32d2d7bbdcbd4057a1f56e66ae69617"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@types/dom-webcodecs@0.1.13",
+      "type": "library",
+      "name": "@types/dom-webcodecs",
+      "version": "0.1.13",
+      "scope": "required",
+      "description": "TypeScript definitions for dom-webcodecs",
+      "purl": "pkg:npm/%40types/dom-webcodecs@0.1.13",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@types/dom-webcodecs/-/dom-webcodecs-0.1.13.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/dom-webcodecs"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "3b986488521c8e3b333c8632512caf49ccafac1a15dcd384119c7fa4c96cbb8e132b358d90b5410719f1273e368a7e67dd022895839c0581423d967487c4a4c1"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "fflate@0.8.3",
+      "type": "library",
+      "name": "fflate",
+      "version": "0.8.3",
+      "scope": "required",
+      "author": "Arjun Barrett <arjunbarrett@gmail.com>",
+      "description": "High performance (de)compression in an 8kB package",
+      "purl": "pkg:npm/fflate@0.8.3",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/fflate/-/fflate-0.8.3.tgz"
+        },
+        {
+          "type": "website",
+          "url": "https://101arrowz.github.io/fflate"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/101arrowz/fflate/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "b5b64db89acbc06529df3b2106d772e16f8e47166e221f1ae629722044030b9ad8d5fdd4db424caf2d0b977581cd4e7c1192ac12e2455e16f9830bfc0ac3ef80"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "hash-wasm@4.12.0",
+      "type": "library",
+      "name": "hash-wasm",
+      "version": "4.12.0",
+      "scope": "required",
+      "author": "Dani Biró <danibiro93@gmail.com> (https://danibiro.com)",
+      "description": "Lightning fast hash functions for browsers and Node.js using hand-tuned WebAssembly binaries (MD4, MD5, SHA-1, SHA-2, SHA-3, Keccak, BLAKE2, BLAKE3, PBKDF2, Argon2, bcrypt, scrypt, Adler-32, CRC32, CRC32C, RIPEMD-160, HMAC, xxHash, SM3, Whirlpool)",
+      "purl": "pkg:npm/hash-wasm@4.12.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/hash-wasm/-/hash-wasm-4.12.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/Daninet/hash-wasm.git"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/Daninet/hash-wasm#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Daninet/hash-wasm/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "fbfd81dab60b6f8f08fdebdd38884ff8afc30f671ad9f8018e9e8ef860449c20e4d9ee2ba5e5c82bc1af23244f8d37b38265a7f6098ac244238f1e81b6a0c755"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "libdeflate@0.1.0",
+      "type": "library",
+      "name": "libdeflate",
+      "version": "0.1.0",
+      "scope": "required",
+      "author": "Evan Hahn <me@evanhahn.com> (https://evanhahn.com)",
+      "description": "JS + WASM wrapper around libdeflate, a library for fast, whole-buffer DEFLATE-based compression and decompression",
+      "purl": "pkg:npm/libdeflate@0.1.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/libdeflate/-/libdeflate-0.1.0.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://codeberg.org/EvanHahn/libdeflate.js.git"
+        },
+        {
+          "type": "website",
+          "url": "https://codeberg.org/EvanHahn/libdeflate.js"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://codeberg.org/EvanHahn/libdeflate.js/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "1ee6c4fa5634e149e76808c7df64a24e879fdecfc927ac80a5bf904e363fdc17d2958f00a808dc5206bd353209678373294dac2adb4279f06edd3deda0b5c27d"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "mediabunny@1.61.3",
+      "type": "library",
+      "name": "mediabunny",
+      "version": "1.61.3",
+      "scope": "required",
+      "author": "Vanilagy",
+      "description": "Pure TypeScript media toolkit for reading, writing, and converting media files, directly in the browser.",
+      "purl": "pkg:npm/mediabunny@1.61.3",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/mediabunny/-/mediabunny-1.61.3.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/Vanilagy/mediabunny.git"
+        },
+        {
+          "type": "website",
+          "url": "https://mediabunny.dev/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Vanilagy/mediabunny/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "914a8b2955d05701d1eb61a4389c58a2c0265c44496ea9d70602434ed465c47118be2564320fc4be197d5cdea479da92e4b3f5b55e2414acb363f5786b8a1fa3"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MPL-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "pako@1.0.11",
+      "type": "library",
+      "name": "pako",
+      "version": "1.0.11",
+      "scope": "required",
+      "description": "zlib port to javascript - fast, modularized, with browser support",
+      "purl": "pkg:npm/pako@1.0.11",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/nodeca/pako"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "e212c1f0fcb8cd971ee6ce3277d5f3a29ab056fff218d855d4197c353982ab5efadc778adbe130553bfe95e19e2f5dc39e1db07dbaa8c153d70883b4cf8b5a63"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "(MIT AND Zlib)"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pdf-lib@1.17.1",
+      "type": "library",
+      "name": "pdf-lib",
+      "version": "1.17.1",
+      "scope": "required",
+      "author": "Andrew Dillon <andrew.dillon.j@gmail.com>",
+      "description": "Create and modify PDF files with JavaScript",
+      "purl": "pkg:npm/pdf-lib@1.17.1",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.17.1.tgz"
+        },
+        {
+          "type": "website",
+          "url": "https://pdf-lib.js.org"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Hopding/pdf-lib/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "57f9a9c890284ec3787273f7d6f734c1f340d7ea76d1ebeaaa76a9d0a2e8454374624fe9df0379d83384b0be2804570b75befa865a4a3edcc9220a3aee3fd72f"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "tslib@1.14.1",
+      "type": "library",
+      "name": "tslib",
+      "version": "1.14.1",
+      "scope": "required",
+      "author": "Microsoft Corp.",
+      "description": "Runtime library for TypeScript helper functions",
+      "purl": "pkg:npm/tslib@1.14.1",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Microsoft/tslib.git"
+        },
+        {
+          "type": "website",
+          "url": "https://www.typescriptlang.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Microsoft/TypeScript/issues"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "5e78b7e4d2b38e032bc1ebf2b074c202bb4b0e93efc9ef3357fd04e04c989f8dcfeffeeabd0c0f87d0469077b06ccba5567b5b8a099c4fbadd5f704da3dc1126"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "0BSD"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "wasm-feature-detect@1.9.0",
+      "type": "library",
+      "name": "wasm-feature-detect",
+      "version": "1.9.0",
+      "scope": "required",
+      "author": "Surma <surma@surma.link>",
+      "description": "A small library to detect which features of WebAssembly are supported in your current browser.",
+      "purl": "pkg:npm/wasm-feature-detect@1.9.0",
+      "properties": [],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/wasm-feature-detect/-/wasm-feature-detect-1.9.0.tgz"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ce89c4fb1948218b713f2fbe2f6e28c348400fc08809be3e1603f244e7776eec9722ab09bd410390181f082a1739dd47bb70d4af418e7e73c875c195f98a4d68"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "@localcompress/archive@0.1.0",
+      "type": "library",
+      "name": "archive",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40localcompress/archive@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    },
+    {
+      "bom-ref": "@localcompress/core@0.1.0",
+      "type": "library",
+      "name": "core",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40localcompress/core@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    },
+    {
+      "bom-ref": "@localcompress/image@0.1.0",
+      "type": "library",
+      "name": "image",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40localcompress/image@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    },
+    {
+      "bom-ref": "@localcompress/office@0.1.0",
+      "type": "library",
+      "name": "office",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40localcompress/office@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    },
+    {
+      "bom-ref": "@localcompress/pdf@0.1.0",
+      "type": "library",
+      "name": "pdf",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40localcompress/pdf@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    },
+    {
+      "bom-ref": "@localcompress/security@0.1.0",
+      "type": "library",
+      "name": "security",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40localcompress/security@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    },
+    {
+      "bom-ref": "@localcompress/video@0.1.0",
+      "type": "library",
+      "name": "video",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:npm/%40localcompress/video@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        }
+      ],
+      "externalReferences": []
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "localcompress@0.2.0",
+      "dependsOn": [
+        "@localcompress/web@0.1.0",
+        "@localcompress/archive@0.1.0",
+        "@localcompress/core@0.1.0",
+        "@localcompress/image@0.1.0",
+        "@localcompress/office@0.1.0",
+        "@localcompress/pdf@0.1.0",
+        "@localcompress/security@0.1.0",
+        "@localcompress/video@0.1.0"
+      ]
+    },
+    {
+      "ref": "@localcompress/web@0.1.0",
+      "dependsOn": [
+        "@fontsource-variable/geist@5.3.0",
+        "@fontsource-variable/geist-mono@5.3.0",
+        "@fontsource/instrument-serif@5.3.0"
+      ]
+    },
+    {
+      "ref": "@fontsource-variable/geist@5.3.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@fontsource-variable/geist-mono@5.3.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@fontsource/instrument-serif@5.3.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@jsquash/avif@2.1.1",
+      "dependsOn": [
+        "wasm-feature-detect@1.9.0"
+      ]
+    },
+    {
+      "ref": "@jsquash/jpeg@1.6.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@jsquash/oxipng@2.3.0",
+      "dependsOn": [
+        "wasm-feature-detect@1.9.0"
+      ]
+    },
+    {
+      "ref": "@jsquash/webp@1.5.0",
+      "dependsOn": [
+        "wasm-feature-detect@1.9.0"
+      ]
+    },
+    {
+      "ref": "@pdf-lib/standard-fonts@1.0.0",
+      "dependsOn": [
+        "pako@1.0.11"
+      ]
+    },
+    {
+      "ref": "@pdf-lib/upng@1.0.1",
+      "dependsOn": [
+        "pako@1.0.11"
+      ]
+    },
+    {
+      "ref": "@types/dom-mediacapture-transform@0.1.12",
+      "dependsOn": [
+        "@types/dom-webcodecs@0.1.13"
+      ]
+    },
+    {
+      "ref": "@types/dom-webcodecs@0.1.13",
+      "dependsOn": []
+    },
+    {
+      "ref": "fflate@0.8.3",
+      "dependsOn": []
+    },
+    {
+      "ref": "hash-wasm@4.12.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "libdeflate@0.1.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "mediabunny@1.61.3",
+      "dependsOn": [
+        "@types/dom-mediacapture-transform@0.1.12",
+        "@types/dom-webcodecs@0.1.13"
+      ]
+    },
+    {
+      "ref": "pako@1.0.11",
+      "dependsOn": []
+    },
+    {
+      "ref": "pdf-lib@1.17.1",
+      "dependsOn": [
+        "@pdf-lib/standard-fonts@1.0.0",
+        "@pdf-lib/upng@1.0.1",
+        "pako@1.0.11",
+        "tslib@1.14.1"
+      ]
+    },
+    {
+      "ref": "tslib@1.14.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "wasm-feature-detect@1.9.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@localcompress/archive@0.1.0",
+      "dependsOn": [
+        "fflate@0.8.3"
+      ]
+    },
+    {
+      "ref": "@localcompress/core@0.1.0",
+      "dependsOn": [
+        "hash-wasm@4.12.0",
+        "libdeflate@0.1.0"
+      ]
+    },
+    {
+      "ref": "@localcompress/image@0.1.0",
+      "dependsOn": [
+        "@jsquash/avif@2.1.1",
+        "@jsquash/jpeg@1.6.0",
+        "@jsquash/oxipng@2.3.0",
+        "@jsquash/webp@1.5.0"
+      ]
+    },
+    {
+      "ref": "@localcompress/office@0.1.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@localcompress/pdf@0.1.0",
+      "dependsOn": [
+        "pdf-lib@1.17.1"
+      ]
+    },
+    {
+      "ref": "@localcompress/security@0.1.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "@localcompress/video@0.1.0",
+      "dependsOn": [
+        "mediabunny@1.61.3"
+      ]
+    }
+  ]
+}

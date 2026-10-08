@@ -1,0 +1,16 @@
+{
+  "name": "@localcompress/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./deflate": "./src/deflate.ts",
+    "./hash": "./src/hash.ts"
+  },
+  "dependencies": {
+    "hash-wasm": "4.12.0",
+    "libdeflate": "0.1.0"
+  },
+  "sideEffects": false
+}

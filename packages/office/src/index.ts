@@ -1,0 +1,1 @@
+export { compressOffice } from './engine';

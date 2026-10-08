@@ -1,0 +1,30 @@
+{
+  "name": "localcompress",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Secure, local-first file optimization. The file stays on the workstation. Always.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @localcompress/web",
+    "build": "npm run build -w @localcompress/web && node scripts/audit-dist.mjs apps/web/dist",
+    "preview": "npm run preview -w @localcompress/web",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "sbom": "node scripts/sbom.mjs",
+    "package": "npm run build && node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.3",
+    "vitest": "5.0.3"
+  }
+}

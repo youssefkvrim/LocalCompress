@@ -1,0 +1,62 @@
+[
+  {
+    "package": "@jsquash/avif@2.1.1",
+    "file": "node_modules/@jsquash/avif/codec/dec/avif_dec.wasm",
+    "bytes": 1170930,
+    "sha256": "5c35dde23dfd862088a49a6b8a9fe81f9f9a1a46aaa27de7efd7baa7611c4b47"
+  },
+  {
+    "package": "@jsquash/avif@2.1.1",
+    "file": "node_modules/@jsquash/avif/codec/enc/avif_enc.wasm",
+    "bytes": 3485872,
+    "sha256": "d9f2a95164362af48558d176e619becfd49dd97b50b86c679b47100860522b3d"
+  },
+  {
+    "package": "@jsquash/avif@2.1.1",
+    "file": "node_modules/@jsquash/avif/codec/enc/avif_enc_mt.wasm",
+    "bytes": 3534665,
+    "sha256": "202d7ec9fb7d658df7cbf17fd85d83da724ac9551818c2d5161c858353a683a4"
+  },
+  {
+    "package": "@jsquash/jpeg@1.6.0",
+    "file": "node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm",
+    "bytes": 166470,
+    "sha256": "a7c4b12169817e779ff4af137981393ae924944e167ad1bd95747c9199162d3e"
+  },
+  {
+    "package": "@jsquash/jpeg@1.6.0",
+    "file": "node_modules/@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm",
+    "bytes": 251524,
+    "sha256": "24d4177f1c4963e2058b107189249651c61fdef125570e79b1dfb63c8bb49326"
+  },
+  {
+    "package": "@jsquash/oxipng@2.3.0",
+    "file": "node_modules/@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm",
+    "bytes": 164172,
+    "sha256": "5ea3e53c0b4fc1b4e8d1511d35b89329d9376bec75a9c4d3c054774487e5f9a3"
+  },
+  {
+    "package": "@jsquash/oxipng@2.3.0",
+    "file": "node_modules/@jsquash/oxipng/codec/pkg-parallel/squoosh_oxipng_bg.wasm",
+    "bytes": 236042,
+    "sha256": "2f579c4be8d88aaa44ee5db950df97e15c49738f92c690bb6aa9cbf49caaa8eb"
+  },
+  {
+    "package": "@jsquash/webp@1.5.0",
+    "file": "node_modules/@jsquash/webp/codec/dec/webp_dec.wasm",
+    "bytes": 137960,
+    "sha256": "30fb52fa2a80166d25ba7debf902218904ba1f05ccce9f959f722beff9e2f344"
+  },
+  {
+    "package": "@jsquash/webp@1.5.0",
+    "file": "node_modules/@jsquash/webp/codec/enc/webp_enc.wasm",
+    "bytes": 281261,
+    "sha256": "b6085bb6702f144e9dc6016d58d230b34a84976bf0d080b7390b4b4b137d6ab7"
+  },
+  {
+    "package": "@jsquash/webp@1.5.0",
+    "file": "node_modules/@jsquash/webp/codec/enc/webp_enc_simd.wasm",
+    "bytes": 345584,
+    "sha256": "39c279269ec1163b987b6d69749458e3d5b03b9585f58b6ca5455b76b504a305"
+  }
+]
