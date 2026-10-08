@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:d962ae3a-08cd-4e28-b756-1f7819aecda3",
+  "serialNumber": "urn:uuid:225d3952-61c9-43f1-9b06-f4bd0d874736",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-08T11:50:19.226Z",
+    "timestamp": "2026-10-08T13:25:25.938Z",
     "lifecycles": [
       {
         "phase": "build"
@@ -37,19 +37,19 @@
   },
   "components": [
     {
-      "bom-ref": "@fontsource-variable/geist@5.3.0",
+      "bom-ref": "@fontsource/poppins@5.3.0",
       "type": "library",
-      "name": "@fontsource-variable/geist",
+      "name": "@fontsource/poppins",
       "version": "5.3.0",
       "scope": "required",
       "author": "Google Inc.",
-      "description": "Self-host the Geist font in a neatly bundled NPM package.",
-      "purl": "pkg:npm/%40fontsource-variable/geist@5.3.0",
+      "description": "Self-host the Poppins font in a neatly bundled NPM package.",
+      "purl": "pkg:npm/%40fontsource/poppins@5.3.0",
       "properties": [],
       "externalReferences": [
         {
           "type": "distribution",
-          "url": "https://registry.npmjs.org/@fontsource-variable/geist/-/geist-5.3.0.tgz"
+          "url": "https://registry.npmjs.org/@fontsource/poppins/-/poppins-5.3.0.tgz"
         },
         {
           "type": "vcs",
@@ -57,51 +57,13 @@
         },
         {
           "type": "website",
-          "url": "https://fontsource.org/fonts/geist"
+          "url": "https://fontsource.org/fonts/poppins"
         }
       ],
       "hashes": [
         {
           "alg": "SHA-512",
-          "content": "8f49bebcb42e1b95c06281ed18256ed2ca6f946ade477133a44094573905988d664d59c03b7f25fcd10f0c2160675efb271cd82422d29934226c88983e2946ac"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "id": "OFL-1.1"
-          }
-        }
-      ]
-    },
-    {
-      "bom-ref": "@fontsource/instrument-serif@5.3.0",
-      "type": "library",
-      "name": "@fontsource/instrument-serif",
-      "version": "5.3.0",
-      "scope": "required",
-      "author": "Google Inc.",
-      "description": "Self-host the Instrument Serif font in a neatly bundled NPM package.",
-      "purl": "pkg:npm/%40fontsource/instrument-serif@5.3.0",
-      "properties": [],
-      "externalReferences": [
-        {
-          "type": "distribution",
-          "url": "https://registry.npmjs.org/@fontsource/instrument-serif/-/instrument-serif-5.3.0.tgz"
-        },
-        {
-          "type": "vcs",
-          "url": "git+https://github.com/fontsource/font-files.git"
-        },
-        {
-          "type": "website",
-          "url": "https://fontsource.org/fonts/instrument-serif"
-        }
-      ],
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "98389a220d2eebbb18579f5f89ef765b3e2c33c5225656cbedf2f19c53c22a45f5e433004849d04d111b68fe52e7fdc309cb2800e710d2c57d13801e63842a61"
+          "content": "726b359cced4e9237c7a9215d56315395f15b00eb8e5a4a6df01dfcc8427924d7cf14df8d5385b2464a5d92bf9e15dbd8270db4f66ab30f7cbcef54821509c79"
         }
       ],
       "licenses": [
@@ -586,8 +548,7 @@
     {
       "ref": "localcompress@0.3.0",
       "dependsOn": [
-        "@fontsource-variable/geist@5.3.0",
-        "@fontsource/instrument-serif@5.3.0",
+        "@fontsource/poppins@5.3.0",
         "@jsquash/jpeg@1.6.0",
         "@jsquash/oxipng@2.3.0",
         "hash-wasm@4.12.0",
@@ -597,11 +558,7 @@
       ]
     },
     {
-      "ref": "@fontsource-variable/geist@5.3.0",
-      "dependsOn": []
-    },
-    {
-      "ref": "@fontsource/instrument-serif@5.3.0",
+      "ref": "@fontsource/poppins@5.3.0",
       "dependsOn": []
     },
     {

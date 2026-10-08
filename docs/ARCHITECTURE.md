@@ -25,7 +25,7 @@ src/
   main.ts            page entry: lock down, claim scratch space, register the service worker
   sw.js              service-worker template (the build fills in the file list and hashes)
   lib/               plumbing, no policy
-    types.ts         settings, job, result, messages — the only shared shapes
+    types.ts         settings, job, result, messages, the only shared shapes
     detect.ts        file type from the first bytes
     zip.ts           ZIP / ZIP64 read and write, zip-bomb budget
     deflate.ts       libdeflate (compress) and browser streams (decompress)
@@ -79,7 +79,7 @@ A lossy result is kept only when it is at least 10 % smaller than the lossless o
 | Trusted Types | no HTML or script from strings; no `blob:` workers | `security/guard.ts` |
 | Egress guard | in page and every worker: only body-less same-origin GET of app files; WebSocket, WebRTC, beacons off | `security/guard.ts` |
 | Service worker | everything else is answered locally with 403 | `sw.js` |
-| Page purity | no engine code on the main thread (a navigation could carry data out) — enforced by the build | `scripts/audit.mjs` |
+| Page purity | no engine code on the main thread (a navigation could carry data out), enforced by the build | `scripts/audit.mjs` |
 | Scratch hygiene | per-tab, Web-Lock-guarded; orphans purged at start | `lib/scratch.ts` |
 
 ## Large files

@@ -12,20 +12,20 @@ Targets are to be set from measurements on the **reference Safran workstation** 
 
 Metrics to record per file: input size, output size, ratio, total time, time per stage, peak RAM (browser processes), CPU %, GPU %, main-thread long tasks (> 50 ms), WASM init time (first job vs second job), startup time (cold / SW-cached).
 
-## Baseline — 2026-10-08 (macOS dev machine, Apple Silicon, Chromium-based embedded browser, Balanced preset)
+## Baseline, 2026-10-08 (macOS dev machine, Apple Silicon, Chromium-based embedded browser, Balanced preset)
 
 | File | Input | Output | Reduction | Total | Notable stages |
 |---|---|---|---|---|---|
-| JPEG 4000×3000 (q≈98) | 9.9 MB | 841 KB | −91.5 % | 1.5–9 s | encode 1.2 s / 7.8 s in two runs (see note) |
-| PNG 1920×1080 screenshot | 215 KB | 200 KB | −7.3 % | < 1 s | lossless |
-| PNG 1600×1200 photographic | 3.9 MB | 3.4 MB | −12.3 % | 5.2 s | encode 5.0 s, lossless |
-| PDF 4 pages, 2 large images | 14.9 MB | 405 KB | −97.3 % | 5.8 s | encode 5.6 s |
-| PPTX with 2 photos | 13.7 MB | 3.7 MB | −73.3 % | ~10 s | encode 9.8 s (OxiPNG) |
-| XLSM with macro + photo | 9.9 MB | 284 KB | −97.1 % | ~4 s | VBA verbatim |
-| MP4 1080p30 20 s @ 133 Mbit/s | 335 MB | 9.7 MB | −97.1 % | ~10 s | encode 3.3 s (hardware H.264) |
-| ZIP, stored logs + JPEG | 18.0 MB | 11.7 MB | −35.0 % | 1.5 s | analyse 0.4 s, encode 0.8 s |
-| ZIP, already deflated | 11.7 MB | — | 0.0 % projected | < 1 s | *not worth recompressing* |
-| **ZIP, stored, 1.1 GB** | 1.11 GB | 498 MB | −55.2 % | **38.6 s** | encode 30.5 s, CRC verify 3.4 s, page heap 8 MB |
+| JPEG 4000×3000 (q≈98) | 9.9 MB | 841 KB | -91.5 % | 1.5-9 s | encode 1.2 s / 7.8 s in two runs (see note) |
+| PNG 1920×1080 screenshot | 215 KB | 200 KB | -7.3 % | < 1 s | lossless |
+| PNG 1600×1200 photographic | 3.9 MB | 3.4 MB | -12.3 % | 5.2 s | encode 5.0 s, lossless |
+| PDF 4 pages, 2 large images | 14.9 MB | 405 KB | -97.3 % | 5.8 s | encode 5.6 s |
+| PPTX with 2 photos | 13.7 MB | 3.7 MB | -73.3 % | ~10 s | encode 9.8 s (OxiPNG) |
+| XLSM with macro + photo | 9.9 MB | 284 KB | -97.1 % | ~4 s | VBA verbatim |
+| MP4 1080p30 20 s @ 133 Mbit/s | 335 MB | 9.7 MB | -97.1 % | ~10 s | encode 3.3 s (hardware H.264) |
+| ZIP, stored logs + JPEG | 18.0 MB | 11.7 MB | -35.0 % | 1.5 s | analyse 0.4 s, encode 0.8 s |
+| ZIP, already deflated | 11.7 MB | - | 0.0 % projected | < 1 s | *not worth recompressing* |
+| **ZIP, stored, 1.1 GB** | 1.11 GB | 498 MB | -55.2 % | **38.6 s** | encode 30.5 s, CRC verify 3.4 s, page heap 8 MB |
 
 Timings with "~" were read from the UI without per-stage capture. The test browser was an embedded, often hidden pane; one JPEG run was 6× slower than another, so **treat single numbers as indicative only** and re-measure on the reference workstation.
 

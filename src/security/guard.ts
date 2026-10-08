@@ -65,7 +65,7 @@ export function lockDown(scope: NetEntry['scope'], report: (e: NetEntry) => void
   for (const name of ['WebSocket', 'EventSource', 'WebTransport', 'RTCPeerConnection', 'webkitRTCPeerConnection']) {
     if (name in g)
       freeze(g, name, function () {
-        throw block(name, '—', 'disabled');
+        throw block(name, '-', 'disabled');
       });
   }
   if (typeof Navigator !== 'undefined')

@@ -1,5 +1,5 @@
 /**
- * Lossless JPEG optimisation — the equivalent of
+ * Lossless JPEG optimisation, the equivalent of
  * `jpegtran -optimize -progressive -copy none`, in TypeScript.
  *
  * The entropy-coded data is decoded to quantised DCT coefficients and
@@ -523,7 +523,7 @@ function* blocksOf(frame: Frame, comps: Component[]): Generator<[number, number]
       }
 }
 
-/** Largest correction-bit backlog before an EOB run is forced out (libjpeg MAX_CORR_BITS − 63). */
+/** Largest correction-bit backlog before an EOB run is forced out (libjpeg MAX_CORR_BITS - 63). */
 const MAX_PENDING_BITS = 1000 - 63;
 
 /**
@@ -701,7 +701,7 @@ function encode(frame: Frame, head: Uint8Array[], progressive: boolean): Uint8Ar
   if (!progressive) {
     for (const g of groups) scan(g, 0, 63, 0, 0);
   } else if (comps.length === 3) {
-    // libjpeg's jpeg_simple_progression() script for YCbCr — what `jpegtran -progressive` writes.
+    // libjpeg's jpeg_simple_progression() script for YCbCr, what `jpegtran -progressive` writes.
     const [y, cb, cr] = comps;
     dc(0, 1);
     scan([y], 1, 5, 0, 2);
@@ -732,7 +732,7 @@ function encode(frame: Frame, head: Uint8Array[], progressive: boolean): Uint8Ar
 
 const startsWithAscii = (d: Uint8Array, s: string) => s.split('').every((ch, i) => d[i] === ch.charCodeAt(0));
 
-/** EXIF orientation (1–8) from an APP1 payload, or 1. */
+/** EXIF orientation (1-8) from an APP1 payload, or 1. */
 function exifOrientation(app1: Uint8Array): number {
   if (!startsWithAscii(app1, 'Exif\0\0')) return 1;
   const t = app1.subarray(6);

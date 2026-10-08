@@ -36,7 +36,7 @@ try {
   const ppm = execFileSync('djpeg', ['-ppm', p('jpeg/r422.jpg')], { maxBuffer: 1 << 28 });
   writeFileSync(p('jpeg/restart.jpg'), execFileSync('cjpeg', ['-quality', '88', '-restart', '3', '-sample', '1x1'], { input: ppm, maxBuffer: 1 << 28 }));
 } catch {
-  console.log('jpegtran/cjpeg not found — progressive and restart fixtures skipped');
+  console.log('jpegtran/cjpeg not found, progressive and restart fixtures skipped');
 }
 
 // ── Video ───────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ ff(
   const png = await doc.embedPng(readFileSync(p('photo.png')));
   for (let i = 0; i < 4; i++) {
     const page = doc.addPage([595, 842]);
-    page.drawText(`LocalCompress fixture — page ${i + 1}`, { x: 50, y: 790, size: 18, font, color: rgb(0.1, 0.1, 0.1) });
+    page.drawText(`LocalCompress fixture, page ${i + 1}`, { x: 50, y: 790, size: 18, font, color: rgb(0.1, 0.1, 0.1) });
     page.drawImage(i % 2 ? png : jpg, { x: 50, y: 300, width: 495, height: 371 });
   }
   doc.setAuthor('Fixture Author');

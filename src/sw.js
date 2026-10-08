@@ -4,7 +4,7 @@
  * the build with its SHA-256 (also published as asset-manifest.json).
  *
  *  - Only GET/HEAD of a listed file on this origin is served; every other
- *    request is answered here with 403 and reported — it never leaves.
+ *    request is answered here with 403 and reported, it never leaves.
  *  - Files are verified against their hash before being cached, then
  *    served from the cache, so the app works with the network off.
  */
