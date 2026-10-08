@@ -6,8 +6,10 @@ export type Lang = 'fr' | 'en';
 
 const TEXT = {
   title: ['Compressez vos fichiers.', 'Compress your files.'],
-  titleEnd: ['Ils restent ici.', 'They stay here.'],
-  sub: ['Images, PDF, présentations, vidéos… Tout se passe dans votre navigateur.', 'Images, PDFs, presentations, videos… Everything happens in your browser.'],
+  sub: [
+    'Images, PDF, documents Office, vidéos, audio et archives. Adapté aux documents classifiés C1, C2 et C3.',
+    'Images, PDFs, Office documents, videos, audio and archives. Suitable for C1, C2 and C3 classified documents.',
+  ],
   drop: ['Déposez vos fichiers ici', 'Drop your files here'],
   browse: ['ou cliquez pour les choisir', 'or click to choose them'],
   release: ['Relâchez pour compresser', 'Release to compress'],
@@ -18,56 +20,53 @@ const TEXT = {
   'hint.balanced': ['Beaucoup plus léger, différence invisible.', 'Much lighter, no visible difference.'],
   'hint.compact': ['Le plus léger possible, qualité réduite.', 'As light as possible, reduced quality.'],
   save: ['Enregistrer', 'Save'],
-  saveAll: ['Tout enregistrer (.zip)', 'Save all (.zip)'],
+  saveAll: ['Enregistrer les {n} (.zip)', 'Save all {n} (.zip)'],
   clear: ['Tout effacer', 'Clear all'],
   remove: ['Retirer', 'Remove'],
   waiting: ['En attente', 'Waiting'],
+  'step.compress': ['Compression', 'Compressing'],
+  'step.verify': ['Vérification', 'Verifying'],
+  'step.finish': ['Finalisation', 'Finishing'],
   verified: ['Vérifié', 'Verified'],
   identical: ['qualité identique', 'identical quality'],
   info: ['Informations', 'Information'],
   close: ['Fermer', 'Close'],
-  footer: ['Les fichiers restent sur votre navigateur, rien n’est envoyé à un serveur.', 'Your files stay in your browser, nothing is sent to a server.'],
+  footer: ['Vos fichiers restent dans votre navigateur, rien n’est envoyé à un serveur.', 'Your files stay in your browser, nothing is sent to a server.'],
   contact: ['Un bug, une idée ?', 'A bug, an idea?'],
 
   'doc.privacy': ['Confidentialité', 'Privacy'],
   'doc.privacyText': [
-    'LocalCompress fonctionne entièrement dans votre navigateur, sur cet ordinateur. Aucun fichier n’est envoyé, stocké ni analysé sur un serveur. L’application continue de fonctionner sans connexion.',
-    'LocalCompress runs entirely in your browser, on this computer. No file is ever sent, stored or analysed on a server. The application keeps working without a connection.',
+    'Vous pouvez y déposer des documents C1, C2 et C3 : le traitement se fait entièrement sur cet ordinateur, sans compte ni connexion. L’application fonctionne aussi hors ligne. L’original n’est jamais modifié.',
+    'You can use it for C1, C2 and C3 documents: processing happens entirely on this computer, with no account and no connection. The application also works offline. The original is never modified.',
   ],
-  uploads: ['envois', 'uploads'],
-  external: ['serveurs externes', 'external servers'],
-  blocked: ['tentatives bloquées', 'blocked attempts'],
   offline: ['Prêt à fonctionner hors ligne', 'Ready to work offline'],
   notOffline: ['Mode hors ligne en préparation', 'Offline mode not ready yet'],
   misconfig: ['Configuration du serveur incomplète : prévenez l’administrateur.', 'Incomplete server configuration: tell your administrator.'],
   'doc.settings': ['Réglages', 'Settings'],
-  'set.meta': ['Retirer les informations cachées', 'Remove hidden information'],
-  'set.metaHint': ['Position GPS, auteur, appareil. Les étiquettes de confidentialité sont conservées.', 'GPS location, author, device. Confidentiality labels are kept.'],
-  'set.macros': ['Accepter les fichiers à macros', 'Accept files with macros'],
-  'set.macrosHint': ['.pptm, .xlsm, .docm. Les macros restent intactes.', '.pptm, .xlsm, .docm. Macros stay intact.'],
+  'set.meta': ['Effacer la localisation et l’auteur', 'Erase location and author'],
+  'set.metaHint': [
+    'Activé : la position GPS, le nom de l’auteur et le modèle d’appareil sont retirés des fichiers. La classification (C1, C2, C3) est toujours conservée.',
+    'On: GPS position, author name and device model are removed from files. The classification (C1, C2, C3) is always kept.',
+  ],
+  'set.macros': ['Accepter les fichiers avec macros', 'Accept files with macros'],
+  'set.macrosHint': ['Activé : les fichiers .pptm, .xlsm et .docm sont aussi compressés. Leurs macros restent intactes.', 'On: .pptm, .xlsm and .docm files are compressed too. Their macros stay intact.'],
   'doc.modes': ['Les trois modes', 'The three modes'],
-  'doc.modesText': [
-    'Sans perte : le contenu reste identique, seule la façon de le ranger change. Équilibré : les images et vidéos sont réencodées, la différence ne se voit pas. Compact : le plus léger possible, la qualité baisse un peu. Un fichier n’est proposé que s’il est vraiment plus léger.',
-    'Lossless: the content stays identical, only the way it is stored changes. Balanced: images and videos are re-encoded, the difference cannot be seen. Compact: as light as possible, quality drops a little. A file is only offered when it is really lighter.',
+  'mode.lossless': ['le contenu reste identique, seule la façon de le ranger change.', 'the content stays identical, only the way it is stored changes.'],
+  'mode.balanced': ['les images et vidéos sont réencodées, la différence ne se voit pas.', 'images and videos are re-encoded, the difference cannot be seen.'],
+  'mode.compact': [
+    'le plus léger possible, la qualité baisse un peu. Un fichier n’est proposé que s’il est vraiment plus léger.',
+    'as light as possible, quality drops a little. A file is only offered when it is really lighter.',
   ],
   'doc.formats': ['Formats pris en charge', 'Supported formats'],
   'doc.checks': ['Vérifications', 'Checks'],
   'doc.checksText': [
-    'Avant d’être proposé, chaque résultat est rouvert et contrôlé : image décodée et comparée pixel par pixel en mode sans perte, archive relue entrée par entrée (CRC-32), document rouvert et liens internes vérifiés, vidéo relue du début à la fin. Au moindre doute, l’original est conservé. L’original n’est jamais modifié.',
-    'Before it is offered, every result is reopened and checked: images decoded and compared pixel by pixel in lossless mode, archives re-read entry by entry (CRC-32), documents reopened and internal links verified, videos read from start to end. At the slightest doubt, the original is kept. The original is never modified.',
+    'Avant d’être proposé, chaque résultat est rouvert et contrôlé : image comparée pixel par pixel en mode sans perte, archive relue entrée par entrée, document rouvert et liens internes vérifiés, vidéo relue du début à la fin. Au moindre doute, l’original est conservé.',
+    'Before it is offered, every result is reopened and checked: images compared pixel by pixel in lossless mode, archives re-read entry by entry, documents reopened and internal links verified, videos read from start to end. At the slightest doubt, the original is kept.',
   ],
-  'doc.technical': ['Détails techniques', 'Technical details'],
-  'doc.engines': [
-    'Moteurs : JPEG sans perte (Huffman optimal, progressif), MozJPEG, OxiPNG, libdeflate, libwebp, libavif, FLAC, WebCodecs (H.264, AAC, HEVC), pdf-lib, Mediabunny.',
-    'Engines: lossless JPEG (optimal Huffman, progressive), MozJPEG, OxiPNG, libdeflate, libwebp, libavif, FLAC, WebCodecs (H.264, AAC, HEVC), pdf-lib, Mediabunny.',
-  ],
-  requests: ['Requêtes observées', 'Observed requests'],
+  'doc.tools': ['Outils utilisés', 'Tools used'],
+  'doc.toolsText': ['LocalCompress s’appuie sur ces projets publics et vérifiables :', 'LocalCompress relies on these public, auditable projects:'],
   storage: ['Stockage temporaire sur cet ordinateur', 'Temporary storage on this computer'],
-  purge: ['Vider', 'Empty'],
-  verify: [
-    'Ce panneau montre ce que l’application observe d’elle-même. La référence reste une vérification indépendante (capture réseau).',
-    'This panel shows what the application observes about itself. An independent check (network capture) remains the reference.',
-  ],
+  purge: ['Vider le stockage temporaire', 'Empty temporary storage'],
   'doc.contact': ['Contact', 'Contact'],
   'doc.contactText': ['Un bug, une idée de format ou d’amélioration ? Écrivez au développeur :', 'A bug, an idea for a format or an improvement? Write to the developer:'],
 } satisfies Record<string, [string, string]>;
@@ -133,7 +132,8 @@ export function setLang(l: Lang) {
 }
 
 const pick = ([fr, en]: readonly [string, string]) => (lang === 'fr' ? fr : en);
-export const t = (k: keyof typeof TEXT) => pick(TEXT[k]);
+export const t = (k: keyof typeof TEXT, n?: number) => pick(TEXT[k]).replace('{n}', String(n ?? ''));
+export const pickText = pick;
 export const reasonText = (r: Reason = 'unsupported') => pick(REASONS[r]);
 export const categoryText = (c: Category) => pick(CATEGORIES[c]);
 export const formatList = () => Object.entries(FORMATS).map(([c, f]) => [categoryText(c as Category), f] as const);

@@ -37,9 +37,12 @@ self.onmessage = async ({ data }: MessageEvent<ToWorker>) => {
       stripMetadata: settings.stripMetadata,
       allowMacros: settings.allowMacros,
       progress: (value) => post({ type: 'progress', value }),
+      step: (step) => post({ type: 'step', step }),
       check: (label, ok) => void checks.push({ label, ok }),
     };
+    job.step('compress');
     const out = await engine(job);
+    job.step('finish');
 
     if (checks.some((c) => !c.ok)) {
       await removeJob(id);

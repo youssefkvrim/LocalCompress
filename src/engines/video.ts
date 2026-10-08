@@ -56,6 +56,7 @@ export const videoEngine: Engine = async (job) => {
     conversion.onProgress = (f) => job.progress(f * 0.95);
     await conversion.execute();
     const file = await out.close();
+    job.step('verify');
 
     await validate(job, file, width, height, duration, copyAudio || !!audioCodec);
     return { file, path: out.path, ext: 'mp4', engine: 'H.264 (WebCodecs)', lossless: false };

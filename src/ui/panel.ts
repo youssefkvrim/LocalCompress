@@ -1,20 +1,29 @@
 /**
- * The Informations page: privacy, settings, modes, formats, checks,
- * technical details and contact. Everything a curious user may want,
- * kept out of the main screen.
+ * The Informations page: privacy, settings, modes, formats, checks, the
+ * tools LocalCompress is built on, temporary storage and contact.
  */
 import { purgeSession, usage } from '../lib/scratch';
-import { cspString } from '../security/csp';
 import type { Settings } from '../lib/types';
 import { h, icon, replace } from './dom';
 import { store } from './store';
-import { bytes, formatList, t } from './i18n';
+import { bytes, formatList, getLang, pickText, t } from './i18n';
 
 declare const __VERSION__: string;
 export const CONTACT = 'youssef.karim@safrangroup.com';
 
 /** Production must run cross-origin isolated: proof the security headers arrived. */
 export const headersOk = () => !import.meta.env.PROD || crossOriginIsolated;
+
+/** Public projects LocalCompress is built on: [name, [fr, en], link]. */
+const TOOLS: [string, [string, string], string][] = [
+  ['Mediabunny', ['Lit et réencode les vidéos et les sons.', 'Reads and re-encodes videos and sounds.'], 'https://github.com/Vanilagy/mediabunny'],
+  ['pdf-lib', ['Ouvre et réécrit les fichiers PDF.', 'Opens and rewrites PDF files.'], 'https://github.com/Hopding/pdf-lib'],
+  ['jSquash', ['Compresse les images (MozJPEG, OxiPNG).', 'Compresses images (MozJPEG, OxiPNG).'], 'https://github.com/jamsinclair/jSquash'],
+  ['libdeflate', ['Compresse les archives et documents, plus fort que le ZIP classique.', 'Compresses archives and documents, harder than classic ZIP.'], 'https://github.com/ebiggers/libdeflate'],
+  ['hash-wasm', ['Calcule l’empreinte qui prouve qu’un fichier n’a pas changé.', 'Computes the fingerprint that proves a file has not changed.'], 'https://github.com/Daninet/hash-wasm'],
+  ['Poppins', ['La police de caractères de l’application.', 'The application’s typeface.'], 'https://github.com/itfoundry/Poppins'],
+  ['LocalCompress', ['Le code source de cette application.', 'The source code of this application.'], 'https://github.com/youssefkvrim/LocalCompress'],
+];
 
 export function panel() {
   const body = h('div', { class: 'panel-body' });
@@ -29,7 +38,6 @@ export function panel() {
       body,
     ),
   );
-  let techOpen = false;
 
   const open = () => (el.classList.add('open'), render());
   const close = () => el.classList.remove('open');
@@ -37,11 +45,6 @@ export function panel() {
 
   function render() {
     if (!el.classList.contains('open')) return;
-    const net = store.network;
-    const count = (f: (n: (typeof net)[number]) => boolean) => net.filter(f).length;
-    const uploads = count((n) => !n.blocked && n.method !== 'GET' && n.method !== 'HEAD');
-    const external = count((n) => !n.blocked && /^https?:/.test(n.url) && new URL(n.url).origin !== location.origin);
-    const counter = (v: number, label: string, good: boolean) => h('div', { class: `counter ${good ? 'good' : 'bad'}` }, h('b', null, String(v)), h('span', null, label));
     const storage = h('span', null, '…');
     void usage().then((b) => (storage.textContent = bytes(b)));
     const section = (title: string, ...content: (Node | null)[]) => h('section', null, h('h3', null, title), ...content);
@@ -52,32 +55,29 @@ export function panel() {
         t('doc.privacy'),
         h('p', null, t('doc.privacyText')),
         headersOk() ? null : h('p', { class: 'warn' }, t('misconfig')),
-        h('div', { class: 'counters' }, counter(uploads, t('uploads'), !uploads), counter(external, t('external'), !external), counter(count((n) => n.blocked), t('blocked'), true)),
         h('p', { class: 'line' }, store.offline ? icon.check() : icon.info(), t(store.offline ? 'offline' : 'notOffline')),
       ),
       section(t('doc.settings'), toggle('set.meta', 'set.metaHint', 'stripMetadata'), toggle('set.macros', 'set.macrosHint', 'allowMacros')),
-      section(t('doc.modes'), h('p', null, t('doc.modesText'))),
+      section(t('doc.modes'), ...(['lossless', 'balanced', 'compact'] as const).map((m) => h('p', null, h('b', null, `${t(m)}${getLang() === 'fr' ? ' :' : ':'} `), t(`mode.${m}`)))),
       section(t('doc.formats'), h('dl', { class: 'formats' }, ...formatList().flatMap(([c, f]) => [h('dt', null, c), h('dd', null, f)]))),
       section(t('doc.checks'), h('p', null, t('doc.checksText'))),
       section(
-        t('doc.contact'),
-        h('p', null, t('doc.contactText')),
-        h('a', { class: 'btn ghost', href: `mailto:${CONTACT}?subject=LocalCompress` }, icon.mail(), CONTACT),
+        t('doc.tools'),
+        h('p', null, t('doc.toolsText')),
+        h(
+          'ul',
+          { class: 'tools' },
+          ...TOOLS.map(([name, text, url]) =>
+            h('li', null, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, name, icon.external()), h('span', null, pickText(text))),
+          ),
+        ),
       ),
-      h(
-        'details',
-        { class: 'tech', open: techOpen, ontoggle: (e: Event) => (techOpen = (e.target as HTMLDetailsElement).open) },
-        h('summary', null, t('doc.technical')),
-        h('p', null, t('doc.engines')),
-        h('h4', null, t('requests')),
-        h('ul', { class: 'net' }, ...net.slice(-100).reverse().map((n) => h('li', { class: n.blocked ? 'blocked' : '' }, `${n.blocked ? '✕' : '✓'} ${n.scope} ${n.method} ${short(n.url)}${n.why ? `: ${n.why}` : ''}`))),
-        h('h4', null, 'Content-Security-Policy'),
-        h('code', { class: 'csp' }, cspString(true)),
-        h('h4', null, t('storage')),
-        h('p', { class: 'line spread' }, storage, h('button', { class: 'btn ghost small', type: 'button', onclick: () => void purgeSession().then(render) }, t('purge'))),
-        h('p', { class: 'muted' }, t('verify')),
-        h('p', { class: 'muted' }, `LocalCompress ${__VERSION__}`),
+      section(
+        t('storage'),
+        h('p', { class: 'line spread' }, storage, h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('purge'), title: t('purge'), onclick: () => void purgeSession().then(render) }, icon.trash())),
       ),
+      section(t('doc.contact'), h('p', null, t('doc.contactText')), h('a', { class: 'btn ghost', href: `mailto:${CONTACT}?subject=LocalCompress` }, icon.mail(), CONTACT)),
+      h('p', { class: 'version' }, `LocalCompress ${__VERSION__}`),
     );
   }
 
@@ -88,13 +88,4 @@ export function panel() {
   }
 
   return { el, open, render };
-}
-
-function short(u: string) {
-  try {
-    const url = new URL(u, location.href);
-    return url.origin === location.origin ? url.pathname : url.href;
-  } catch {
-    return u;
-  }
 }

@@ -52,6 +52,9 @@ export interface Check {
   ok: boolean;
 }
 
+/** What the user is told the worker is doing. */
+export type Step = 'compress' | 'verify' | 'finish';
+
 /** What an engine receives. */
 export interface Job {
   id: string;
@@ -60,6 +63,8 @@ export interface Job {
   stripMetadata: boolean;
   allowMacros: boolean;
   progress(fraction: number): void;
+  /** Announce that the engine moves on to checking its candidate. */
+  step(step: Step): void;
   /** Record an integrity check. One failed check discards the output. */
   check(label: string, ok: boolean): void;
 }
@@ -103,6 +108,7 @@ export type ToWorker = { id: string; session: string; file: File; settings: Sett
 
 export type FromWorker =
   | { type: 'progress'; value: number }
+  | { type: 'step'; step: Step }
   | { type: 'net'; entry: NetEntry }
   | { type: 'result'; result: Result }
   | { type: 'error'; reason: Reason; message: string };

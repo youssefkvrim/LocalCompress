@@ -94,6 +94,7 @@ export const zipEngine: Engine = async (job) => {
   const out = await Writer.create(job.id, 'out.zip');
   const changed = await rewrite(job.file, archive, out, { progress: (f) => job.progress(f * 0.8) });
   const file = await out.close();
+  job.step('verify');
   const problems = await verify(file, archive, changed);
   job.check('Archive reopens', true);
   job.check('Structure preserved', !problems.some((p) => p.includes('changed') || p.includes('count')));

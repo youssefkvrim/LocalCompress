@@ -59,6 +59,7 @@ export const pdfEngine: Engine = async (job) => {
   if (job.stripMetadata) stripMetadata(doc);
   mergeDuplicates(ctx);
   dropUnused(ctx);
+  job.step('verify');
   const bytes = await doc.save({ useObjectStreams: true, addDefaultPage: false, updateFieldAppearances: false });
 
   try {
