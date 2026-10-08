@@ -1,7 +1,7 @@
 /** The single screen: title, drop zone, mode, list of files, footer. */
 import type { Mode } from '../lib/types';
 import { h, icon, logo, replace } from './dom';
-import { store } from './store';
+import { saveAll, store } from './store';
 import { row } from './row';
 import { CONTACT, panel as makePanel, headersOk } from './panel';
 import { getLang, setLang, t, type Lang } from './i18n';
@@ -22,7 +22,8 @@ export function mountApp(root: HTMLElement) {
   const hint = h('p', { class: 'hint' });
   const list = h('ul', { class: 'list' });
   const clear = h('button', { class: 'link', type: 'button', onclick: () => store.items.filter((i) => i.state !== 'working').forEach((i) => void store.remove(i)) }, t('clear'));
-  const actions = h('div', { class: 'actions' }, clear);
+  const saveAllButton = h('button', { class: 'btn', type: 'button', onclick: () => void saveAll() }, icon.down(), t('saveAll'));
+  const actions = h('div', { class: 'actions' }, clear, saveAllButton);
 
   replace(
     root,
@@ -62,6 +63,7 @@ export function mountApp(root: HTMLElement) {
     replace(list, ...store.items.map((i) => rows.get(i.id)!.el));
     rows.forEach((r) => r.update());
     actions.hidden = store.items.length < 2;
+    saveAllButton.hidden = store.items.filter((i) => i.result?.optimized).length < 2;
     infoButton.classList.toggle('warn', !headersOk() || store.network.some((n) => n.blocked));
     document.body.classList.toggle('has-files', store.items.length > 0);
     panel.render();
