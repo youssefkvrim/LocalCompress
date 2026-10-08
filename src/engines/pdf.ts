@@ -141,7 +141,7 @@ function isSigned(ctx: PDFContext): boolean {
   return flags instanceof PDFNumber && (flags.asNumber() & 1) === 1;
 }
 
-/** Remove author / producer / XMP — but never a sensitivity label. */
+/** Remove author / producer / XMP, but never a sensitivity label. */
 function stripMetadata(doc: PDFDocument) {
   const ctx = doc.context;
   const xmp = ctx.lookup(doc.catalog.get(N('Metadata')));

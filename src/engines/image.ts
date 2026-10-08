@@ -121,7 +121,7 @@ async function optimizePng(png: Uint8Array, strip: boolean): Promise<Uint8Array>
 }
 
 /**
- * Re-deflate the image data (IDAT) with libdeflate — the role Zopfli plays
+ * Re-deflate the image data (IDAT) with libdeflate, the role Zopfli plays
  * in `oxipng -Z`. Same filtered bytes, so the same pixels by construction.
  */
 export async function recompressIdat(png: Uint8Array, strip: boolean): Promise<Uint8Array | null> {

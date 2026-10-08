@@ -1,4 +1,4 @@
-# Zero-upload verification — procedure and initial results
+# Zero-upload verification, procedure and initial results
 
 **Claim under test:** *A file processed by LocalCompress never leaves the workstation.*
 
@@ -36,7 +36,7 @@ This document has two parts: the **procedure** the security team should run inde
 
 | # | Step | Expected |
 |---|---|---|
-| 4.1 | First load online, then disable all network adapters | — |
+| 4.1 | First load online, then disable all network adapters | - |
 | 4.2 | Close and reopen the browser, open the app URL | App loads |
 | 4.3 | Process each format | Succeeds; outputs validated |
 
@@ -47,7 +47,7 @@ This document has two parts: the **procedure** the security team should run inde
 | 5.1 | In DevTools console (page and worker contexts): `fetch('/x',{method:'POST',body:'canary'})` | Rejected: *POST not permitted*; no request in capture |
 | 5.2 | `fetch('https://example.com')`, `new WebSocket(…)`, `navigator.sendBeacon(…)`, `new RTCPeerConnection()` | All rejected / return false |
 | 5.3 | `fetch('/assets/'+canary+'.js')` | SW answers 403 locally (*not an application asset*); **no request in capture** |
-| 5.4 | Serve the site **without** security headers (misconfiguration) | Guard + SW still block 5.1–5.3 |
+| 5.4 | Serve the site **without** security headers (misconfiguration) | Guard + SW still block 5.1-5.3 |
 | 5.5 | Inject a modified dependency that attempts exfiltration (security-team-built variant) | Blocked and visible in panel as *blocked attempts* |
 | 5.6 | Drop a ZIP bomb, a 30 000 × 30 000 PNG, a truncated PDF, a ZIP with `../` paths | Refused with a clear message; no crash; nothing written outside OPFS |
 
@@ -64,8 +64,8 @@ This document has two parts: the **procedure** the security team should run inde
 | Check | Result |
 |---|---|
 | CSP meta + headers present; `crossOriginIsolated === true` | ✔ |
-| `fetch('/upload', {method:'POST', body})` from page | ✔ blocked — *POST not permitted* |
-| `fetch('https://example.com/x')` | ✔ blocked — *cross-origin* |
+| `fetch('/upload', {method:'POST', body})` from page | ✔ blocked, *POST not permitted* |
+| `fetch('https://example.com/x')` | ✔ blocked, *cross-origin* |
 | `navigator.sendBeacon`, `new WebSocket`, `new RTCPeerConnection` | ✔ blocked / returns false |
 | `innerHTML` injection | ✔ rejected by Trusted Types |
 | Processing under production CSP (WASM, workers, OxiPNG thread pool) | ✔ works |
@@ -73,4 +73,4 @@ This document has two parts: the **procedure** the security team should run inde
 | Build audit (`scripts/audit.mjs`) | ✔ no external host except reviewed identifier strings (namespaces, license/comment URLs) |
 | Unit tests `tests/security/egress.test.ts` | ✔ |
 
-**Not yet done:** proxy capture, pcap, DNS/firewall logging, Windows target workstation, canary search — these belong to the independent verification above.
+**Not yet done:** proxy capture, pcap, DNS/firewall logging, Windows target workstation, canary search, these belong to the independent verification above.

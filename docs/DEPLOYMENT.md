@@ -58,7 +58,7 @@ The build uses relative URLs (`base: './'`) and the service-worker scope is its 
 
 - Microsoft Edge or Google Chrome ≥ 120, managed.
 - Recommended policies on C3 workstations: extension allow-list (no extensions on the LocalCompress origin), `DefaultFileSystemWriteGuardSetting` allowing the File System Access save dialog for the LocalCompress origin, browser auto-update from the internal channel.
-- Disk encryption (BitLocker) — OPFS scratch lives in the browser profile while a job is staged.
+- Disk encryption (BitLocker), OPFS scratch lives in the browser profile while a job is staged.
 - Sufficient free disk: the browser grants OPFS a share of free space; the largest output that can be staged is bounded by it.
 
 ## 5. Air-gapped environments

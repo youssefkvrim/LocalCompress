@@ -38,7 +38,7 @@ Mediabunny and pdf-lib are JavaScript; libdeflate and hash-wasm embed small WASM
 
 1. Publish the new `site/` (atomic directory swap recommended).
 2. Browsers fetch `sw.js` (no-cache) on next visit, install the new version **in the background**, verify every asset hash, then switch over; old caches are deleted on activation.
-3. A user who never reconnects keeps the last good version — offline operation is never broken by an update.
+3. A user who never reconnects keeps the last good version, offline operation is never broken by an update.
 
 There is no automatic update over the Internet and no update check to any external host.
 

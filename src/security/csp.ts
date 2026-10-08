@@ -1,5 +1,5 @@
 /**
- * The Content-Security-Policy and response headers — one definition used by
+ * The Content-Security-Policy and response headers, one definition used by
  * the page (<meta>), the preview server, and the nginx / IIS configs.
  *
  * No remote origin appears anywhere. 'wasm-unsafe-eval' allows compiling

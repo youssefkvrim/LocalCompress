@@ -1,6 +1,6 @@
 /**
- * Application state and the job queue. Jobs run one at a time — bounded
- * memory for multi-GB files — each in a fresh worker.
+ * Application state and the job queue. Jobs run one at a time, bounded
+ * memory for multi-GB files, each in a fresh worker.
  *
  * Only the settings are persisted (in this browser). Never file names,
  * contents or results.

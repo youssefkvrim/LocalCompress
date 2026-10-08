@@ -9,8 +9,8 @@
  *     sbom/                 CycloneDX SBOM + license inventory
  *     SHA256SUMS            checksums of every file in the package
  *
- * Headers are generated from src/security/csp.ts — the same
- * source the application and the preview server use — so they cannot drift.
+ * Headers are generated from src/security/csp.ts, the same
+ * source the application and the preview server use, so they cannot drift.
  * Requires Node ≥ 22.18 (native TypeScript type stripping).
  */
 import { createHash } from 'node:crypto';
@@ -38,7 +38,7 @@ const ngHeaders = Object.entries(headers)
   .join('\n');
 writeFileSync(
   join(out, 'deploy/nginx.conf'),
-  `# LocalCompress ${manifest.version} (build ${manifest.build}) — static site, no server-side processing.
+  `# LocalCompress ${manifest.version} (build ${manifest.build}), static site, no server-side processing.
 # The server only delivers application files. It never receives user files:
 # all non-GET methods are rejected and request bodies are limited to zero.
 server {
@@ -80,7 +80,7 @@ const xmlEsc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/
 writeFileSync(
   join(out, 'deploy/web.config'),
   `<?xml version="1.0" encoding="UTF-8"?>
-<!-- LocalCompress ${manifest.version} (build ${manifest.build}) — copy next to index.html. -->
+<!-- LocalCompress ${manifest.version} (build ${manifest.build}), copy next to index.html. -->
 <configuration>
   <system.webServer>
     <staticContent>
