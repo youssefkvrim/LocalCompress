@@ -1,9 +1,9 @@
-/** The single screen: title, drop zone, mode, list of files. */
+/** The single screen: title, drop zone, mode, list of files, footer. */
 import type { Mode } from '../lib/types';
-import { h, icon, replace } from './dom';
+import { h, icon, logo, replace } from './dom';
 import { store } from './store';
 import { row } from './row';
-import { panel as makePanel, headersOk } from './panel';
+import { CONTACT, panel as makePanel, headersOk } from './panel';
 import { getLang, setLang, t, type Lang } from './i18n';
 
 const MODES: Mode[] = ['lossless', 'balanced', 'compact'];
@@ -16,38 +16,43 @@ export function mountApp(root: HTMLElement) {
   const picker = h('input', { type: 'file', multiple: true, hidden: true }) as HTMLInputElement;
   picker.addEventListener('change', () => (store.add(picker.files ?? []), (picker.value = '')));
 
-  const status = h('button', { class: 'status', type: 'button', onclick: () => panel.show('privacy') }, h('i', { class: 'dot' }), h('span', null, t('local')));
-  const lang = (l: Lang) => h('button', { class: `lang ${getLang() === l ? 'on' : ''}`, type: 'button', onclick: () => (setLang(l), mountApp(root)) }, l.toUpperCase());
+  const lang = (l: Lang) => h('button', { class: `lang ${getLang() === l ? 'on' : ''}`, type: 'button', 'aria-pressed': String(getLang() === l), onclick: () => (setLang(l), mountApp(root)) }, l.toUpperCase());
+  const infoButton = h('button', { class: 'link', type: 'button', onclick: panel.open }, icon.info(), h('span', null, t('info')));
   const modes = h('div', { class: 'seg', role: 'radiogroup' });
   const hint = h('p', { class: 'hint' });
   const list = h('ul', { class: 'list' });
-  const clear = h('button', { class: 'clear', type: 'button', onclick: () => store.items.filter((i) => i.state !== 'working').forEach((i) => void store.remove(i)) }, t('clear'));
-  const words = t('tagline').split(' ');
+  const clear = h('button', { class: 'link', type: 'button', onclick: () => store.items.filter((i) => i.state !== 'working').forEach((i) => void store.remove(i)) }, t('clear'));
+  const actions = h('div', { class: 'actions' }, clear);
 
   replace(
     root,
     h(
       'header',
       { class: 'bar' },
-      h('span', { class: 'brand' }, h('span', { class: 'mark' }), 'LocalCompress'),
-      h('nav', { class: 'bar-right' }, lang('fr'), h('span', { class: 'sep' }, '/'), lang('en'), status, h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('settings'), onclick: () => panel.show('settings') }, icon.sliders())),
+      h('span', { class: 'brand' }, logo(), h('span', { class: 'wordmark' }, 'Local', h('b', null, 'Compress'))),
+      h('nav', { class: 'bar-right' }, h('span', { class: 'langs' }, lang('fr'), lang('en')), infoButton),
     ),
     h(
       'main',
       { class: 'main' },
-      h('h1', { class: 'title' }, `${words.slice(0, -1).join(' ')} `, h('em', null, words.at(-1))),
-      h('p', { class: 'lede' }, icon.lock(), t('sub')),
+      h('h1', { class: 'title' }, t('title'), h('br'), h('span', null, t('titleEnd'))),
+      h('p', { class: 'lede' }, t('sub')),
       h('button', { class: 'zone', type: 'button', onclick: () => picker.click() }, h('span', { class: 'zone-plus' }, icon.plus()), h('span', { class: 'zone-title' }, t('drop')), h('span', { class: 'zone-sub' }, t('browse'))),
       h('div', { class: 'mode' }, modes, hint),
       list,
-      clear,
+      actions,
     ),
-    h('div', { class: 'veil' }, h('p', null, t('release'), h('br'), h('em', null, t('tagline')))),
+    h(
+      'footer',
+      { class: 'foot' },
+      h('p', null, t('footer'), ' · © 2026 Safran'),
+      h('a', { class: 'link', href: `mailto:${CONTACT}?subject=LocalCompress` }, icon.mail(), t('contact')),
+    ),
+    h('div', { class: 'veil' }, h('p', null, t('release'))),
     panel.el,
     picker,
   );
 
-  // Rows are keyed by item; the whole screen re-renders cheaply on every change.
   const rows = new Map<string, ReturnType<typeof row>>();
   const render = () => {
     replace(modes, ...MODES.map((m) => h('button', { type: 'button', role: 'radio', class: m === store.settings.mode ? 'on' : '', 'aria-checked': String(m === store.settings.mode), onclick: () => store.set({ mode: m }) }, t(m))));
@@ -56,9 +61,9 @@ export function mountApp(root: HTMLElement) {
     for (const id of rows.keys()) if (!store.items.some((i) => i.id === id)) rows.delete(id);
     replace(list, ...store.items.map((i) => rows.get(i.id)!.el));
     rows.forEach((r) => r.update());
-    clear.hidden = store.items.length < 2;
-    status.classList.toggle('warn', !headersOk() || store.network.some((n) => n.blocked));
-    document.body.classList.toggle('has-jobs', store.items.length > 0);
+    actions.hidden = store.items.length < 2;
+    infoButton.classList.toggle('warn', !headersOk() || store.network.some((n) => n.blocked));
+    document.body.classList.toggle('has-files', store.items.length > 0);
     panel.render();
   };
   unmount = store.on(render);

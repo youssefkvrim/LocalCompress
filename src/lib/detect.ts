@@ -32,3 +32,20 @@ export function office(names: string[]): { ext: string; macro: boolean } | null 
   }
   return null;
 }
+
+/** What the user sees: the family of a file, from its name. */
+export type Category = 'image' | 'pdf' | 'presentation' | 'spreadsheet' | 'document' | 'video' | 'audio' | 'archive' | 'other';
+
+const CATEGORY_OF: Record<string, Category> = {};
+for (const [category, exts] of Object.entries({
+  image: 'jpg jpeg jfif png webp avif heic heif bmp tif tiff gif',
+  pdf: 'pdf',
+  presentation: 'pptx pptm odp',
+  spreadsheet: 'xlsx xlsm ods',
+  document: 'docx docm odt',
+  video: 'mp4 m4v mov mkv webm',
+  audio: 'wav mp3 m4a',
+  archive: 'zip',
+})) for (const ext of exts.split(' ')) CATEGORY_OF[ext] = category as Category;
+
+export const categoryOf = (name: string): Category => CATEGORY_OF[name.split('.').pop()?.toLowerCase() ?? ''] ?? 'other';
