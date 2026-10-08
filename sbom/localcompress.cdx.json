@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:0b24cb85-5fa9-4e75-9634-7725de837e3e",
+  "serialNumber": "urn:uuid:d962ae3a-08cd-4e28-b756-1f7819aecda3",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-08T10:42:17.555Z",
+    "timestamp": "2026-10-08T11:50:19.226Z",
     "lifecycles": [
       {
         "phase": "build"
@@ -19,13 +19,13 @@
       }
     ],
     "component": {
-      "bom-ref": "localcompress@0.2.0",
+      "bom-ref": "localcompress@0.3.0",
       "type": "application",
       "name": "LocalCompress",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "scope": "required",
-      "description": "Secure, local-first file optimization. The file stays on the workstation. Always.",
-      "purl": "pkg:npm/localcompress@0.2.0",
+      "description": "Le fichier reste ici. Local-first file compression: nothing is ever uploaded.",
+      "purl": "pkg:npm/localcompress@0.3.0",
       "properties": [
         {
           "name": "cdx:npm:package:private",
@@ -36,21 +36,6 @@
     }
   },
   "components": [
-    {
-      "bom-ref": "@localcompress/web@0.1.0",
-      "type": "library",
-      "name": "web",
-      "version": "0.1.0",
-      "scope": "required",
-      "purl": "pkg:npm/%40localcompress/web@0.1.0",
-      "properties": [
-        {
-          "name": "cdx:npm:package:private",
-          "value": "true"
-        }
-      ],
-      "externalReferences": []
-    },
     {
       "bom-ref": "@fontsource-variable/geist@5.3.0",
       "type": "library",
@@ -79,44 +64,6 @@
         {
           "alg": "SHA-512",
           "content": "8f49bebcb42e1b95c06281ed18256ed2ca6f946ade477133a44094573905988d664d59c03b7f25fcd10f0c2160675efb271cd82422d29934226c88983e2946ac"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "id": "OFL-1.1"
-          }
-        }
-      ]
-    },
-    {
-      "bom-ref": "@fontsource-variable/geist-mono@5.3.0",
-      "type": "library",
-      "name": "@fontsource-variable/geist-mono",
-      "version": "5.3.0",
-      "scope": "required",
-      "author": "Google Inc.",
-      "description": "Self-host the Geist Mono font in a neatly bundled NPM package.",
-      "purl": "pkg:npm/%40fontsource-variable/geist-mono@5.3.0",
-      "properties": [],
-      "externalReferences": [
-        {
-          "type": "distribution",
-          "url": "https://registry.npmjs.org/@fontsource-variable/geist-mono/-/geist-mono-5.3.0.tgz"
-        },
-        {
-          "type": "vcs",
-          "url": "git+https://github.com/fontsource/font-files.git"
-        },
-        {
-          "type": "website",
-          "url": "https://fontsource.org/fonts/geist-mono"
-        }
-      ],
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "bc16eec03128f4092ba800cc5ceae5011dc315c262e3f2717ae538dc5a22404467370b1f5cd9efc6f45e646d367102a6ca4e0366465d0595f7a130efcb6cc103"
         }
       ],
       "licenses": [
@@ -161,36 +108,6 @@
         {
           "license": {
             "id": "OFL-1.1"
-          }
-        }
-      ]
-    },
-    {
-      "bom-ref": "@jsquash/avif@2.1.1",
-      "type": "library",
-      "name": "@jsquash/avif",
-      "version": "2.1.1",
-      "scope": "required",
-      "author": "Jamie Sinclair",
-      "description": "Wasm AVIF encoder and decoder supporting the browser. Repackaged from Squoosh App.",
-      "purl": "pkg:npm/%40jsquash/avif@2.1.1",
-      "properties": [],
-      "externalReferences": [
-        {
-          "type": "distribution",
-          "url": "https://registry.npmjs.org/@jsquash/avif/-/avif-2.1.1.tgz"
-        }
-      ],
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "2cc4717747cc81f08bb686c3874fec15824c3224494cd6121045af443297940799d3cb77808e55fb5b61213d178d727e4951bb66e83d0745cfcb1d138b955134"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "id": "Apache-2.0"
           }
         }
       ]
@@ -245,36 +162,6 @@
         {
           "alg": "SHA-512",
           "content": "690f30884a7aced95331773e44cb7f086f1cad4de61070d4fa1f89624222e9cb4c86587cf8bb63e57c1015f06ecb3298ae9f0dc5a156f340e9f36e1baa3afecc"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "id": "Apache-2.0"
-          }
-        }
-      ]
-    },
-    {
-      "bom-ref": "@jsquash/webp@1.5.0",
-      "type": "library",
-      "name": "@jsquash/webp",
-      "version": "1.5.0",
-      "scope": "required",
-      "author": "Jamie Sinclair",
-      "description": "Wasm webp encoder and decoder supporting the browser. Repackaged from Squoosh App.",
-      "purl": "pkg:npm/%40jsquash/webp@1.5.0",
-      "properties": [],
-      "externalReferences": [
-        {
-          "type": "distribution",
-          "url": "https://registry.npmjs.org/@jsquash/webp/-/webp-1.5.0.tgz"
-        }
-      ],
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "2a080ba23d8c9d149f22a4de29ed4499b9634d7dafb95ee687bf64f3d3c22f5a72aa20d42dc3ccd4be3bb70c57b748646faf05ef46d788bdf5331b2ea19b4a17"
         }
       ],
       "licenses": [
@@ -417,44 +304,6 @@
         {
           "alg": "SHA-512",
           "content": "3b986488521c8e3b333c8632512caf49ccafac1a15dcd384119c7fa4c96cbb8e132b358d90b5410719f1273e368a7e67dd022895839c0581423d967487c4a4c1"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT"
-          }
-        }
-      ]
-    },
-    {
-      "bom-ref": "fflate@0.8.3",
-      "type": "library",
-      "name": "fflate",
-      "version": "0.8.3",
-      "scope": "required",
-      "author": "Arjun Barrett <arjunbarrett@gmail.com>",
-      "description": "High performance (de)compression in an 8kB package",
-      "purl": "pkg:npm/fflate@0.8.3",
-      "properties": [],
-      "externalReferences": [
-        {
-          "type": "distribution",
-          "url": "https://registry.npmjs.org/fflate/-/fflate-0.8.3.tgz"
-        },
-        {
-          "type": "website",
-          "url": "https://101arrowz.github.io/fflate"
-        },
-        {
-          "type": "issue-tracker",
-          "url": "https://github.com/101arrowz/fflate/issues"
-        }
-      ],
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "b5b64db89acbc06529df3b2106d772e16f8e47166e221f1ae629722044030b9ad8d5fdd4db424caf2d0b977581cd4e7c1192ac12e2455e16f9830bfc0ac3ef80"
         }
       ],
       "licenses": [
@@ -731,133 +580,20 @@
           }
         }
       ]
-    },
-    {
-      "bom-ref": "@localcompress/archive@0.1.0",
-      "type": "library",
-      "name": "archive",
-      "version": "0.1.0",
-      "scope": "required",
-      "purl": "pkg:npm/%40localcompress/archive@0.1.0",
-      "properties": [
-        {
-          "name": "cdx:npm:package:private",
-          "value": "true"
-        }
-      ],
-      "externalReferences": []
-    },
-    {
-      "bom-ref": "@localcompress/core@0.1.0",
-      "type": "library",
-      "name": "core",
-      "version": "0.1.0",
-      "scope": "required",
-      "purl": "pkg:npm/%40localcompress/core@0.1.0",
-      "properties": [
-        {
-          "name": "cdx:npm:package:private",
-          "value": "true"
-        }
-      ],
-      "externalReferences": []
-    },
-    {
-      "bom-ref": "@localcompress/image@0.1.0",
-      "type": "library",
-      "name": "image",
-      "version": "0.1.0",
-      "scope": "required",
-      "purl": "pkg:npm/%40localcompress/image@0.1.0",
-      "properties": [
-        {
-          "name": "cdx:npm:package:private",
-          "value": "true"
-        }
-      ],
-      "externalReferences": []
-    },
-    {
-      "bom-ref": "@localcompress/office@0.1.0",
-      "type": "library",
-      "name": "office",
-      "version": "0.1.0",
-      "scope": "required",
-      "purl": "pkg:npm/%40localcompress/office@0.1.0",
-      "properties": [
-        {
-          "name": "cdx:npm:package:private",
-          "value": "true"
-        }
-      ],
-      "externalReferences": []
-    },
-    {
-      "bom-ref": "@localcompress/pdf@0.1.0",
-      "type": "library",
-      "name": "pdf",
-      "version": "0.1.0",
-      "scope": "required",
-      "purl": "pkg:npm/%40localcompress/pdf@0.1.0",
-      "properties": [
-        {
-          "name": "cdx:npm:package:private",
-          "value": "true"
-        }
-      ],
-      "externalReferences": []
-    },
-    {
-      "bom-ref": "@localcompress/security@0.1.0",
-      "type": "library",
-      "name": "security",
-      "version": "0.1.0",
-      "scope": "required",
-      "purl": "pkg:npm/%40localcompress/security@0.1.0",
-      "properties": [
-        {
-          "name": "cdx:npm:package:private",
-          "value": "true"
-        }
-      ],
-      "externalReferences": []
-    },
-    {
-      "bom-ref": "@localcompress/video@0.1.0",
-      "type": "library",
-      "name": "video",
-      "version": "0.1.0",
-      "scope": "required",
-      "purl": "pkg:npm/%40localcompress/video@0.1.0",
-      "properties": [
-        {
-          "name": "cdx:npm:package:private",
-          "value": "true"
-        }
-      ],
-      "externalReferences": []
     }
   ],
   "dependencies": [
     {
-      "ref": "localcompress@0.2.0",
-      "dependsOn": [
-        "@localcompress/web@0.1.0",
-        "@localcompress/archive@0.1.0",
-        "@localcompress/core@0.1.0",
-        "@localcompress/image@0.1.0",
-        "@localcompress/office@0.1.0",
-        "@localcompress/pdf@0.1.0",
-        "@localcompress/security@0.1.0",
-        "@localcompress/video@0.1.0"
-      ]
-    },
-    {
-      "ref": "@localcompress/web@0.1.0",
+      "ref": "localcompress@0.3.0",
       "dependsOn": [
         "@fontsource-variable/geist@5.3.0",
-        "@fontsource-variable/geist-mono@5.3.0",
-        "@fontsource/instrument-serif@5.3.0"
+        "@fontsource/instrument-serif@5.3.0",
+        "@jsquash/jpeg@1.6.0",
+        "@jsquash/oxipng@2.3.0",
+        "hash-wasm@4.12.0",
+        "libdeflate@0.1.0",
+        "mediabunny@1.61.3",
+        "pdf-lib@1.17.1"
       ]
     },
     {
@@ -865,18 +601,8 @@
       "dependsOn": []
     },
     {
-      "ref": "@fontsource-variable/geist-mono@5.3.0",
-      "dependsOn": []
-    },
-    {
       "ref": "@fontsource/instrument-serif@5.3.0",
       "dependsOn": []
-    },
-    {
-      "ref": "@jsquash/avif@2.1.1",
-      "dependsOn": [
-        "wasm-feature-detect@1.9.0"
-      ]
     },
     {
       "ref": "@jsquash/jpeg@1.6.0",
@@ -884,12 +610,6 @@
     },
     {
       "ref": "@jsquash/oxipng@2.3.0",
-      "dependsOn": [
-        "wasm-feature-detect@1.9.0"
-      ]
-    },
-    {
-      "ref": "@jsquash/webp@1.5.0",
       "dependsOn": [
         "wasm-feature-detect@1.9.0"
       ]
@@ -914,10 +634,6 @@
     },
     {
       "ref": "@types/dom-webcodecs@0.1.13",
-      "dependsOn": []
-    },
-    {
-      "ref": "fflate@0.8.3",
       "dependsOn": []
     },
     {
@@ -955,48 +671,6 @@
     {
       "ref": "wasm-feature-detect@1.9.0",
       "dependsOn": []
-    },
-    {
-      "ref": "@localcompress/archive@0.1.0",
-      "dependsOn": [
-        "fflate@0.8.3"
-      ]
-    },
-    {
-      "ref": "@localcompress/core@0.1.0",
-      "dependsOn": [
-        "hash-wasm@4.12.0",
-        "libdeflate@0.1.0"
-      ]
-    },
-    {
-      "ref": "@localcompress/image@0.1.0",
-      "dependsOn": [
-        "@jsquash/avif@2.1.1",
-        "@jsquash/jpeg@1.6.0",
-        "@jsquash/oxipng@2.3.0",
-        "@jsquash/webp@1.5.0"
-      ]
-    },
-    {
-      "ref": "@localcompress/office@0.1.0",
-      "dependsOn": []
-    },
-    {
-      "ref": "@localcompress/pdf@0.1.0",
-      "dependsOn": [
-        "pdf-lib@1.17.1"
-      ]
-    },
-    {
-      "ref": "@localcompress/security@0.1.0",
-      "dependsOn": []
-    },
-    {
-      "ref": "@localcompress/video@0.1.0",
-      "dependsOn": [
-        "mediabunny@1.61.3"
-      ]
     }
   ]
 }

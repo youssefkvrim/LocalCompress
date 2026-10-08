@@ -4,7 +4,7 @@ Targets are to be set from measurements on the **reference Safran workstation** 
 
 ## Method
 
-1. `node scripts/make-fixtures.mjs [--large]` → synthetic fixtures in `tests/fixtures/` (never commit real documents).
+1. `npm run fixtures` → synthetic fixtures in `tests/fixtures/` (never commit real documents).
 2. Serve the production build (`npm run build && npm run preview`, or the deployed site).
 3. For each file: drop it, wait for *Validated*, open *Details* → **Pipeline timing** gives per-stage durations; the Privacy panel gives network activity.
 4. Measure externally: Task Manager / `perfmon` (CPU %, GPU video-encode engine %, browser process private bytes, peak working set), and UI responsiveness (DevTools Performance → long tasks on the main thread).

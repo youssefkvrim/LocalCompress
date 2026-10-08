@@ -70,7 +70,7 @@ This document has two parts: the **procedure** the security team should run inde
 | `innerHTML` injection | ✔ rejected by Trusted Types |
 | Processing under production CSP (WASM, workers, OxiPNG thread pool) | ✔ works |
 | Server stopped, page reloaded, PNG processed and validated | ✔ app served by SW; 16 requests, all same-origin asset `GET`s from cache; 0 uploads; 0 external hosts |
-| Dist audit (`scripts/audit-dist.mjs`) | ✔ no external host except reviewed identifier strings (namespaces, license/comment URLs) |
+| Build audit (`scripts/audit.mjs`) | ✔ no external host except reviewed identifier strings (namespaces, license/comment URLs) |
 | Unit tests `tests/security/egress.test.ts` | ✔ |
 
 **Not yet done:** proxy capture, pcap, DNS/firewall logging, Windows target workstation, canary search — these belong to the independent verification above.
