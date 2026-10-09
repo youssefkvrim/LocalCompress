@@ -12,6 +12,7 @@
 import { PDFArray, PDFDict, PDFDocument, PDFName, PDFNumber, PDFRawStream, PDFRef, PDFStream, type PDFContext, type PDFObject } from 'pdf-lib';
 import { optimizeJpegLossless, sameCoefficients } from './jpeg';
 import { encodeJpeg } from './image';
+import { imageSize } from '../lib/detect';
 import { BEST_MAX, inflate, zlibBest } from '../lib/deflate';
 import { saveBytes } from '../lib/scratch';
 import { Skip, type Engine, type Mode } from '../lib/types';
@@ -85,9 +86,12 @@ async function optimizeJpegStream(ctx: PDFContext, ref: PDFRef, s: PDFRawStream,
   if (lossless && sameCoefficients(s.contents, lossless.bytes)) best = { data: lossless.bytes };
 
   const gray = colorComponents(ctx, s.dict);
+  // The size the JPEG itself declares, not the PDF's: the dictionary can understate it.
+  const real = imageSize(s.contents, 'jpeg');
   const w = s.dict.lookup(N('Width'));
   const h = s.dict.lookup(N('Height'));
-  const pixels = w instanceof PDFNumber && h instanceof PDFNumber ? w.asNumber() * h.asNumber() : Infinity;
+  const declared = w instanceof PDFNumber && h instanceof PDFNumber && real !== null && w.asNumber() === real.width && h.asNumber() === real.height;
+  const pixels = declared ? real.width * real.height : Infinity;
   if (lossy && gray !== null && pixels <= 120_000_000 && !s.dict.has(N('Decode')) && !(s.dict.get(N('Mask')) instanceof PDFArray)) {
     const bmp = await createImageBitmap(new Blob([s.contents as BlobPart], { type: 'image/jpeg' }), { colorSpaceConversion: 'none', imageOrientation: 'none' });
     const scale = Math.min(1, lossy.maxEdge / Math.max(bmp.width, bmp.height));

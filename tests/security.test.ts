@@ -3,6 +3,7 @@ import { CSP, HEADERS } from '../src/security/csp';
 import { allowed } from '../src/security/guard';
 import { DEFAULTS, sanitize } from '../src/lib/types';
 import { safeName } from '../src/lib/names';
+import { newer } from '../src/lib/version';
 
 const origin = 'https://localcompress.intranet.example';
 const u = (p: string) => new URL(p, origin);
@@ -39,7 +40,7 @@ describe('settings', () => {
   it('fall back to safe defaults', () => {
     expect(sanitize(null)).toEqual(DEFAULTS);
     expect(sanitize({ mode: '__proto__', allowMacros: 'yes' })).toEqual(DEFAULTS);
-    expect(DEFAULTS).toEqual({ mode: 'lossless', stripMetadata: true, allowMacros: false });
+    expect(DEFAULTS).toEqual({ mode: 'lossless', stripMetadata: false, allowMacros: false });
   });
 });
 
@@ -49,5 +50,16 @@ describe('file names', () => {
     expect(safeName('..\\..\\Windows\\evil.dll')).toBe('_.._Windows_evil.dll');
     expect(safeName('a/b:c?.pdf')).toBe('a_b_c_.pdf');
     expect(safeName('')).toBe('file');
+  });
+});
+
+describe('update banner', () => {
+  it('is offered only for a newer version', () => {
+    expect(newer('0.3.1', '0.3.0')).toBe(true);
+    expect(newer('0.10.0', '0.9.9')).toBe(true);
+    expect(newer('1.0.0', '0.99.99')).toBe(true);
+    expect(newer('0.3.0', '0.3.0')).toBe(false);
+    expect(newer('0.2.9', '0.3.0')).toBe(false);
+    expect(newer('0', '0.3.0')).toBe(false); // no answer from the waiting worker
   });
 });

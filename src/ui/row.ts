@@ -28,6 +28,7 @@ export function row(item: Item) {
   const gain = h('span', { class: 'row-gain' });
   const action = h('div', { class: 'row-action' });
   const note = h('p', { class: 'row-note' });
+  const warning = h('p', { class: 'row-warn', role: 'note' });
   const bar = h('div', { class: 'row-bar' });
   const el = h(
     'li',
@@ -38,6 +39,7 @@ export function row(item: Item) {
     action,
     bar,
     note,
+    warning,
   );
   let shown = 0;
   let animating = false;
@@ -56,6 +58,8 @@ export function row(item: Item) {
     const r = item.result;
     el.dataset.state = item.state;
     el.dataset.optimized = String(!!r?.optimized);
+    warning.hidden = !r?.active;
+    warning.textContent = r?.active ? t('active') : '';
     const sizes = r?.optimized ? `${bytes(r.inputSize)} → ${bytes(r.outputSize)}` : bytes(item.file.size);
     meta.textContent = `${categoryText(category)} · ${sizes}`;
 

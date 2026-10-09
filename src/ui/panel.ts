@@ -58,7 +58,7 @@ export function panel() {
         h('p', null, t('doc.privacyText2')),
         h('p', null, t('doc.privacyText3')),
         headersOk() ? null : h('p', { class: 'warn' }, t('misconfig')),
-        store.offline ? h('p', { class: 'line' }, icon.check(), t('offline')) : null,
+        import.meta.env.PROD && store.guard === 'on' ? h('p', { class: 'line' }, icon.check(), t('offline')) : null,
       ),
       section(t('doc.settings'), toggle('set.meta', 'set.metaHint', 'stripMetadata'), toggle('set.macros', 'set.macrosHint', 'allowMacros')),
       section(t('doc.modes'), ...(['lossless', 'balanced', 'compact'] as const).map((m) => h('p', null, h('b', null, `${t(m)}${getLang() === 'fr' ? ' :' : ':'} `), t(`mode.${m}`)))),

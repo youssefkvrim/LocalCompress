@@ -7,6 +7,7 @@
  * order are carried over unchanged.
  */
 import { crc32 } from './crc32';
+import { Skip } from './types';
 /** Anything bytes can be appended to: the OPFS Writer, or an array in tests. */
 export interface Sink {
   position: number;
@@ -79,7 +80,10 @@ export interface Entry {
   comment: Uint8Array;
   /** Stored or deflated, not encrypted, not a directory: we can decode it. */
   readable: boolean;
-  /** Absolute, drive-letter or "..": reported, never extracted. */
+  /**
+   * A name that is dangerous or ambiguous once extracted (absolute, "..",
+   * Windows device or stream name, duplicate): the archive is left as is.
+   */
   unsafe: boolean;
 }
 
@@ -169,11 +173,34 @@ export async function readZip(blob: Blob): Promise<Archive> {
     readZip64Extra(e);
     e.offset += shift;
     e.readable = !(flags & 1) && (e.method === 0 || e.method === 8) && !(e.name.endsWith('/') && e.usize === 0);
-    e.unsafe = /^([a-zA-Z]:|[\\/])/.test(e.name) || e.name.split(/[\\/]/).includes('..');
+    e.unsafe = unsafeName(e.name);
     entries.push(e);
     p += 46 + nameLen + extraLen + commentLen;
   }
+  // Two entries that would land on the same file (Windows ignores case, Unicode has several spellings).
+  const seen = new Map<string, Entry>();
+  for (const e of entries) {
+    const key = e.name.normalize('NFC').toLowerCase().replace(/\\/g, '/');
+    const twin = seen.get(key);
+    if (twin) e.unsafe = twin.unsafe = true;
+    else seen.set(key, e);
+  }
   return { entries, comment: tail.slice(eocd + 22, eocd + 22 + tv.getUint16(eocd + 20, true)) };
+}
+
+/** Windows device names, with or without an extension: "nul.txt" is the null device. */
+const DEVICE = /^(con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³]|conin\$|conout\$)(\.|$)/i;
+
+/**
+ * Absolute or drive-letter paths, "..", Windows device names, NTFS streams
+ * (":"), parts ending in a dot or a space (Windows silently drops them, so
+ * two names collide) and control characters.
+ */
+export function unsafeName(name: string): boolean {
+  if (/^[\\/]/.test(name) || /[\u0000-\u001f:]/.test(name)) return true;
+  const parts = name.split(/[\\/]/);
+  if (parts.at(-1) === '') parts.pop(); // a folder entry ends with "/"
+  return parts.some((p) => p === '..' || DEVICE.test(p) || (p !== '.' && /[. ]$/.test(p)));
 }
 
 function readZip64Extra(e: Entry) {
@@ -195,6 +222,9 @@ export async function readLocal(blob: Blob, e: Entry) {
   if (h.byteLength < 30 || h.getUint32(0, true) !== 0x04034b50) throw new ZipError(`Corrupt local header: ${e.name}`);
   const nameLen = h.getUint16(26, true);
   const extraLen = h.getUint16(28, true);
+  // A local name different from the directory's: tools would disagree on what the archive contains.
+  const name = await bytes(blob, e.offset + 30, e.offset + 30 + nameLen);
+  if (name.length !== e.nameBytes.length || name.some((b, i) => b !== e.nameBytes[i])) throw new Skip('unsafe-paths', `Local and central names differ: ${e.name}`);
   const extra = await bytes(blob, e.offset + 30 + nameLen, e.offset + 30 + nameLen + extraLen);
   const start = e.offset + 30 + nameLen + extraLen;
   let end = start + e.csize;

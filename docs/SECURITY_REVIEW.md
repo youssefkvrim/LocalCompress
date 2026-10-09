@@ -28,6 +28,14 @@ Status legend: **Fixed** (in this commit) · **Mitigated** (reduced, residual ri
 | S18 | Low | Browser decoders (images, WebCodecs) parse untrusted files | **Mitigated**, sandboxed renderer; keep the browser patched |
 | S19 | Low | Metadata removal is not exhaustive (PDF annotation authors, OOXML comment authors, custom XML) | **Open**, documented; extend if a "sanitise" requirement exists |
 | S20 | Info | Freed memory is not zeroed; may reach pagefile / hibernation file | **Open**, OS policy |
+| R1 | **High** | Safran RETEX LC-SEC-01: files could be processed **before the service worker controlled the page** (first visit, failed install), with custom request headers accepted by the guard | **Fixed**: nothing is processed until the SW controls the page (fail closed if it cannot install, loading state meanwhile); guard rejects any request header (`fetch`, `XMLHttpRequest.setRequestHeader`) |
+| R2 | **High** | LC-SEC-02: cached files were served **without re-checking their hash**; code able to write Cache Storage could plant a script | **Fixed**: every cache hit is re-hashed before being served; a mismatch is discarded, reported and fetched again |
+| R3 | **High** | LC-DATA-01: metadata cleaning on by default could remove **sensitivity labels** from JPEG / PNG / video, while the UI said labels were always kept | **Fixed**: cleaning off by default (old saved settings reset), UI text and FORMAT_MATRIX.md say exactly what cleaning removes |
+| R4 | **High** | LC-ARCH-01: sub-path hosting shares storage with other apps of the origin; the SW deleted **every** cache of the origin | **Fixed**: dedicated origin required (DEPLOYMENT.md §3); SW deletes only `localcompress-*` caches |
+| R5 | Medium | LC-DATA-03: PDF lossy path trusted the image size declared by the PDF before decoding | **Fixed**: the JPEG's own header is read; a mismatch keeps the image lossless-only |
+| R6 | Medium | LC-DATA-04: generic ZIPs with dangerous names were recompressed; duplicates, Windows device names, NTFS streams, local/central name mismatches not detected | **Fixed**: all refused (left as is) for ZIP and Office |
+| R7 | Medium | LC-DATA-05: Office macros / ActiveX / OLE / external links copied as is with nothing telling the user | **Fixed** (warning shown on the result); refusing them in a strict profile is **Open** |
+| R8 | Medium | LC-SW-01: an update took over open tabs immediately and deleted the old files, breaking work in progress | **Fixed**: new versions wait; a banner offers newer versions (disabled while files are processed) |
 
 ## 2. Details of fixed findings
 

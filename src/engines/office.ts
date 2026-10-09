@@ -4,7 +4,8 @@
  * They are ZIP packages: images in the media folder are optimised in place
  * (same format, same part name, so every relationship stays valid), XML is
  * re-deflated, author fields are cleared. Macros, embedded objects, ActiveX
- * and signatures are copied byte for byte. Sensitivity labels
+ * and signatures are copied byte for byte, and the result says so: it is
+ * compressed, never cleaned. Sensitivity labels
  * (docProps/custom.xml, docMetadata/) are never touched.
  */
 import { optimizeImage } from './image';
@@ -16,6 +17,8 @@ import { Budget, inflateEntry, readLocal, readZip, type Entry } from '../lib/zip
 import { Skip, type Engine } from '../lib/types';
 
 const VERBATIM = /(^|\/)(vbaProject\.bin|vbaData\.xml)$|\/(embeddings|activeX|customUI)\/|^_xmlsignatures\//i;
+/** Parts that run code or load something from outside: macros (VBA, Excel 4.0), ActiveX, OLE objects, external data. */
+const ACTIVE = /(^|\/)(vbaProject\.bin|vbaData\.xml|connections\.xml)$|\/(activeX|embeddings|macrosheets|externalLinks)\/|oleObject/i;
 const MEDIA = /^(ppt|xl|word)\/media\/[^/]+\.(png|jpe?g)$/i;
 /** Documents are viewed at screen size: images larger than this are downscaled in lossy modes. */
 const MAX_EDGE = { balanced: 2400, compact: 1600 } as const;
@@ -53,8 +56,11 @@ export const officeEngine: Engine = async (job) => {
   const problems = await verify(file, archive, changed);
   job.check('Package reopens', true);
   job.check('CRC-32 verified', problems.length === 0);
-  job.check('Relationships resolve', await relationshipsResolve(file));
-  return { file, path: out.path, ext: kind.ext, engine: 'OOXML · JPEG · OxiPNG · libdeflate', lossless: job.mode === 'lossless' };
+  const links = await relationships(file);
+  job.check('Relationships resolve', links.resolve);
+  // Copied as they are, never cleaned: the user is told so.
+  const active = kind.macro || links.external || archive.entries.some((e) => ACTIVE.test(e.name));
+  return { file, path: out.path, ext: kind.ext, engine: 'OOXML · JPEG · OxiPNG · libdeflate', lossless: job.mode === 'lossless', active };
 };
 
 /** Empty the text of the given XML elements; the structure stays identical. */
@@ -65,22 +71,30 @@ function clear(xml: Uint8Array, tags: string[]) {
   return new TextEncoder().encode(text.replace(re, '<$1></$1>'));
 }
 
-/** Every internal relationship target must exist in the package, and content types must be declared. */
-async function relationshipsResolve(file: File): Promise<boolean> {
+/**
+ * resolve: every internal relationship target exists in the package and
+ * content types are declared. external: something other than a hyperlink
+ * points outside (remote template, linked object or data source).
+ */
+async function relationships(file: File): Promise<{ resolve: boolean; external: boolean }> {
   const archive = await readZip(file);
   const names = new Set(archive.entries.map((e) => e.name));
-  if (!names.has('[Content_Types].xml')) return false;
+  let external = false;
+  if (!names.has('[Content_Types].xml')) return { resolve: false, external };
   const budget = new Budget(file.size);
   for (const e of archive.entries) {
     if (!e.name.endsWith('.rels') || !e.readable || e.usize > 16 << 20) continue;
     const xml = await readText(file, e, budget);
     for (const [, attrs] of xml.matchAll(/<Relationship\b([^>]*)>/g)) {
-      if (/TargetMode\s*=\s*"External"/.test(attrs)) continue;
+      if (/TargetMode\s*=\s*"External"/.test(attrs)) {
+        external ||= !/Type\s*=\s*"[^"]*\/hyperlink"/.test(attrs);
+        continue;
+      }
       const target = /Target\s*=\s*"([^"]*)"/.exec(attrs)?.[1];
-      if (target && !names.has(resolve(e.name, target.replace(/&amp;/g, '&')))) return false;
+      if (target && !names.has(resolve(e.name, target.replace(/&amp;/g, '&')))) return { resolve: false, external };
     }
   }
-  return true;
+  return { resolve: true, external };
 }
 
 async function readText(file: File, e: Entry, budget: Budget) {
