@@ -1,0 +1,182 @@
+/**
+ * Application state and the job queue. Files are processed several at a
+ * time (one fresh worker each) while their estimated memory fits a budget;
+ * a file larger than the budget runs alone.
+ *
+ * Only the settings are persisted (in this browser). Never file names,
+ * contents or results.
+ */
+import { getSession, openFile, removeJob } from '../lib/scratch';
+import { BlobSink, ZipWriter, newEntry } from '../lib/zip';
+import { memoryBudget, memoryCost } from '../lib/cost';
+import { sanitize, type FromWorker, type NetEntry, type Reason, type Result, type Settings, type Step } from '../lib/types';
+
+export interface Item {
+  id: string;
+  file: File;
+  state: 'waiting' | 'working' | 'done' | 'failed';
+  progress: number;
+  step: Step;
+  /** When the current step started (performance.now()), for a fluid progress bar. */
+  stepAt: number;
+  /** Estimated peak memory in bytes; unknown until the header is read. */
+  cost?: number;
+  result?: Result;
+  reason?: Reason;
+  worker?: Worker;
+}
+
+const KEY = 'localcompress.settings';
+
+/**
+ * Production must run cross-origin isolated: the proof that the security
+ * headers (CSP, COOP, COEP) arrived. Without them nothing is processed.
+ */
+export const headersOk = () => !import.meta.env.PROD || crossOriginIsolated;
+const listeners = new Set<() => void>();
+
+export const store = {
+  settings: load(),
+  items: [] as Item[],
+  network: [] as NetEntry[],
+  offline: false,
+
+  on(fn: () => void) {
+    listeners.add(fn);
+    return () => void listeners.delete(fn);
+  },
+  emit() {
+    listeners.forEach((fn) => fn());
+  },
+  set(patch: Partial<Settings>) {
+    store.settings = sanitize({ ...store.settings, ...patch });
+    try {
+      localStorage.setItem(KEY, JSON.stringify(store.settings));
+    } catch {
+      /* private mode: keep in memory */
+    }
+    store.emit();
+  },
+  net(entry: NetEntry) {
+    store.network.push(entry);
+    store.emit();
+  },
+  add(files: Iterable<File>) {
+    if (!headersOk()) return;
+    for (const file of files) {
+      const item: Item = { id: crypto.randomUUID(), file, state: 'waiting', progress: 0, step: 'compress', stepAt: 0 };
+      store.items.push(item);
+      memoryCost(file)
+        .catch(() => Infinity)
+        .then((cost) => ((item.cost = cost), next()));
+    }
+    store.emit();
+  },
+  async remove(item: Item) {
+    item.worker?.terminate();
+    store.items = store.items.filter((i) => i !== item);
+    await removeJob(item.id);
+    store.emit();
+    next();
+  },
+};
+
+function load(): Settings {
+  try {
+    return sanitize(JSON.parse(localStorage.getItem(KEY) ?? 'null'));
+  } catch {
+    return sanitize(null);
+  }
+}
+
+/** At most this many files at once, and never more estimated memory than the budget. */
+const PARALLEL = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1));
+const BUDGET = memoryBudget();
+
+export const pending = () => store.items.some((i) => i.state === 'waiting' || i.state === 'working');
+
+/** Start waiting files in order, as long as they fit (a file over the budget runs alone). */
+function next() {
+  for (;;) {
+    const working = store.items.filter((i) => i.state === 'working');
+    const item = store.items.find((i) => i.state === 'waiting');
+    if (!item || item.cost === undefined || working.length >= PARALLEL) return;
+    const used = working.reduce((n, i) => n + (i.cost ?? 0), 0);
+    if (working.length && used + item.cost > BUDGET) return;
+    start(item);
+  }
+}
+
+function start(item: Item) {
+  const worker = new Worker(new URL('../worker/job.ts', import.meta.url), { type: 'module' });
+  item.worker = worker;
+  item.state = 'working';
+  item.stepAt = performance.now();
+  const finish = (state: Item['state']) => {
+    worker.terminate();
+    item.worker = undefined;
+    item.state = state;
+    store.emit();
+    next();
+  };
+  worker.onmessage = ({ data: m }: MessageEvent<FromWorker>) => {
+    if (m.type === 'progress') (item.progress = m.value), store.emit();
+    else if (m.type === 'step') (item.step = m.step), (item.stepAt = performance.now()), (item.progress = 0), store.emit();
+    else if (m.type === 'net') store.net(m.entry);
+    else if (m.type === 'result') (item.result = m.result), finish('done');
+    else (item.reason = m.reason), finish('failed');
+  };
+  worker.onerror = (e) => {
+    e.preventDefault();
+    item.reason = 'corrupt';
+    finish('failed');
+  };
+  worker.postMessage({ id: item.id, session: getSession(), file: item.file, settings: store.settings });
+  store.emit();
+}
+
+/** Write the result where the user chooses. Bytes go from local disk to local disk. */
+export async function save(item: Item) {
+  await saveAs(await fileOf(item), item.result!.outputName);
+}
+
+/** The result on disk, or the original when nothing could be gained. */
+const fileOf = async (item: Item): Promise<Blob> => (item.result!.optimized ? openFile(item.result!.path) : item.file);
+
+/** Everything that can be saved: every finished file, compressed or as is. */
+export const savable = () => store.items.filter((i) => i.state === 'done' && i.result);
+
+/** Every result in one ZIP, named LocalCompress-HH-mm-ss.zip. Files are stored, not recompressed. */
+export async function saveAll() {
+  if (pending()) return;
+  const done = savable();
+  const sink = new BlobSink();
+  const zip = new ZipWriter(sink);
+  const used = new Set<string>();
+  for (const item of done) {
+    const r = item.result!;
+    let name = r.outputName;
+    for (let n = 2; used.has(name); n++) name = r.outputName.replace(/(\.[^.]*)?$/, ` (${n})$1`);
+    used.add(name);
+    await zip.putFile(newEntry(name), await fileOf(item), r.crc32!);
+  }
+  zip.finish(new Uint8Array(0));
+  const time = new Date().toTimeString().slice(0, 8).replaceAll(':', '-');
+  await saveAs(new Blob(sink.parts, { type: 'application/zip' }), `LocalCompress-${time}.zip`);
+}
+
+async function saveAs(file: Blob, name: string) {
+  const pick = (window as { showSaveFilePicker?: (o: object) => Promise<FileSystemFileHandle> }).showSaveFilePicker;
+  if (pick) {
+    try {
+      const handle = await pick({ suggestedName: name });
+      await file.stream().pipeTo(await handle.createWritable());
+      return;
+    } catch (e) {
+      if ((e as DOMException).name === 'AbortError') return;
+    }
+  }
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(file), download: name });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
+}

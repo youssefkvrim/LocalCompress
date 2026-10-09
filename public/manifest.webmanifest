@@ -1,0 +1,11 @@
+{
+  "name": "LocalCompress",
+  "short_name": "LocalCompress",
+  "description": "Compression de fichiers sur le poste. Rien n’est envoyé.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0B2340",
+  "icons": [{ "src": "logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
