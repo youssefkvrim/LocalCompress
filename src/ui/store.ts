@@ -26,20 +26,44 @@ export interface Item {
   worker?: Worker;
 }
 
-const KEY = 'localcompress.settings';
+/** v2: cleaning became opt-in; settings saved under the old default are not carried over. */
+const KEY = 'localcompress.settings.v2';
+try {
+  localStorage.removeItem('localcompress.settings');
+} catch {
+  /* storage unavailable */
+}
 
 /**
  * Production must run cross-origin isolated: the proof that the security
  * headers (CSP, COOP, COEP) arrived. Without them nothing is processed.
  */
 export const headersOk = () => !import.meta.env.PROD || crossOriginIsolated;
+
+/**
+ * The service worker is the last barrier between the page and the network.
+ * In production nothing is processed until it controls the page:
+ * 'pending' while it installs (first visit), 'slow' when that takes long,
+ * 'on' once it is in control, 'failed' if it cannot start (fail closed).
+ */
+export type Guard = 'pending' | 'slow' | 'on' | 'failed';
+
+/** 'available': a newer version is installed and waits; 'stale': another tab switched to it. */
+export type Update = 'none' | 'available' | 'stale';
+
+/** Files may be processed now. */
+const ready = () => headersOk() && store.guard === 'on' && store.update !== 'stale';
+
 const listeners = new Set<() => void>();
 
 export const store = {
   settings: load(),
   items: [] as Item[],
   network: [] as NetEntry[],
-  offline: false,
+  guard: (import.meta.env.PROD ? 'pending' : 'on') as Guard,
+  update: 'none' as Update,
+  /** Switch to the waiting version; set by start.ts when one is offered. */
+  applyUpdate: () => {},
 
   on(fn: () => void) {
     listeners.add(fn);
@@ -57,12 +81,24 @@ export const store = {
     }
     store.emit();
   },
+  setGuard(state: Guard) {
+    if (store.guard === 'on' || store.guard === state || (store.guard === 'failed' && state !== 'on')) return;
+    store.guard = state;
+    store.emit();
+    next();
+  },
+  setUpdate(state: Update, apply?: () => void) {
+    store.update = state;
+    if (apply) store.applyUpdate = apply;
+    store.emit();
+  },
   net(entry: NetEntry) {
     store.network.push(entry);
     store.emit();
   },
   add(files: Iterable<File>) {
-    if (!headersOk()) return;
+    // Files dropped while the guard installs wait in the list; they start once it is on.
+    if (!headersOk() || store.guard === 'failed' || store.update === 'stale') return;
     for (const file of files) {
       const item: Item = { id: crypto.randomUUID(), file, state: 'waiting', progress: 0, step: 'compress', stepAt: 0 };
       store.items.push(item);
@@ -97,6 +133,7 @@ export const pending = () => store.items.some((i) => i.state === 'waiting' || i.
 
 /** Start waiting files in order, as long as they fit (a file over the budget runs alone). */
 function next() {
+  if (!ready()) return;
   for (;;) {
     const working = store.items.filter((i) => i.state === 'working');
     const item = store.items.find((i) => i.state === 'waiting');

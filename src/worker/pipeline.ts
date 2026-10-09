@@ -75,6 +75,7 @@ export async function run(data: ToWorker, post: Post) {
         outputName: `${name}.compressed.${out.ext}`,
         path: out.path,
         engine: out.engine,
+        active: out.active,
         checks,
         sha256In: await hashIn,
         sha256Out: await sha256(await openFile(out.path)),

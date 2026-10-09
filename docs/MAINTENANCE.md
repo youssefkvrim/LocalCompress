@@ -36,15 +36,22 @@ Mediabunny and pdf-lib are JavaScript; libdeflate and hash-wasm embed small WASM
 
 ## 4. Releasing an update to users
 
-1. Publish the new `site/` (atomic directory swap recommended).
-2. Browsers fetch `sw.js` (no-cache) on next visit, install the new version **in the background**, verify every asset hash, then switch over; old caches are deleted on activation.
-3. A user who never reconnects keeps the last good version, offline operation is never broken by an update.
+1. **Bump `version` in `package.json`** (e.g. 0.3.0 → 0.3.1), then build and publish the new `site/` (atomic directory swap recommended).
+2. Browsers fetch `sw.js` (no-cache) on the next visit, and open tabs check every hour. The new version installs **in the background**, every asset hash verified, and then **waits**: it never takes over a tab on its own, so a file being processed is never interrupted.
+3. If the waiting version is **newer** than the one in the tab, a banner offers *Mettre à jour / Update* (disabled while files are being processed). Clicking it switches over and reloads the tab. Other open tabs reload by themselves if they are empty, otherwise they show *Reload this page* and accept no new file until then.
+4. Without a click, the new version takes over once every LocalCompress tab has been closed.
+5. Old caches (`localcompress-*` only) are deleted when the new version takes over.
+6. A user who never reconnects keeps the last good version, offline operation is never broken by an update.
+
+A build with the **same or a lower version** (a rebuild, a rollback) shows no banner: it applies silently once every tab is closed. Forgetting to bump the version therefore only delays an update, it never breaks one.
 
 There is no automatic update over the Internet and no update check to any external host.
 
 ## 5. Rollback
 
-Republish the previous release directory (kept for at least two versions). Because the SW cache name is the build id, browsers treat the rollback as a new version and switch to it on next visit.
+Republish the previous release directory (kept for at least two versions). Because the SW cache name is the build id, browsers treat the rollback as a new version: it installs on the next visit and takes over once every tab is closed (a lower version shows no banner).
+
+**Urgent rollback** (a defective release users must leave now): rebuild the previous good code with a **higher** version number (e.g. 0.3.0 code released as 0.3.2). The banner then offers it in every open tab.
 
 ## 6. Disaster recovery
 
@@ -53,7 +60,7 @@ Republish the previous release directory (kept for at least two versions). Becau
 | Intranet server down | **None for users who already loaded the app** (service worker). New users cannot load it. | Restore static files from the release archive to any web server with the documented headers. RTO = time to copy a directory. |
 | Server compromised | Risk of a malicious build being served (T7) | Take offline; redeploy a verified release (`SHA256SUMS`); notify users to reload; investigate logs. Consider pinning: publish the expected `asset-manifest.json` hash on a separate channel. |
 | Build host / repository lost | No user impact | Rebuild from source control + internal mirror; verify output against archived `SHA256SUMS`. |
-| Corrupted browser cache on a workstation | App may fail to start | Clear site data for the origin (Edge: `edge://settings/siteData`), reload online. |
+| Corrupted or altered browser cache on a workstation | None online: every cached file is re-checked against its hash each time it is served; a bad copy is discarded and fetched again. Offline, the app fails closed (that file is not served). | Reload online. If it persists, clear site data for the origin (Edge: `edge://settings/siteData`). |
 | A defect producing bad outputs | Outputs are validated before being offered; originals are never modified | Roll back; affected users re-run on the original files. |
 
 No user data needs backing up: the server holds none.

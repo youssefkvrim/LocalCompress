@@ -1,19 +1,26 @@
 /* LocalCompress service worker: offline cache and egress firewall.
  *
- * The build replaces the two constants below: FILES lists every file of
- * the build with its SHA-256 (also published as asset-manifest.json).
+ * The build replaces the constants below: FILES lists every file of the
+ * build with its SHA-256 (also published as asset-manifest.json).
  *
  *  - Only GET/HEAD of a listed file on this origin is served; every other
  *    request is answered here with 403 and reported, it never leaves.
- *  - Files are verified against their hash before being cached or served,
- *    then served from the cache, so the app works with the network off.
+ *  - Files are verified against their hash before being cached, and again
+ *    every time they are served from the cache: Cache Storage is writable
+ *    by any code of this origin, so a cached copy is never trusted as is.
+ *  - A new version installs in the background and waits. The page offers it
+ *    when it is newer and activates it on request; otherwise it takes over
+ *    once every tab of the old version is closed.
+ *  - Only this application's caches (localcompress-*) are ever deleted.
  */
 'use strict';
 
 const BUILD = 'dev';
+const VERSION = '0.0.0';
 const FILES = [];
 
-const CACHE = `localcompress-${BUILD}`;
+const PREFIX = 'localcompress-';
+const CACHE = `${PREFIX}${BUILD}`;
 const scope = new URL(self.registration.scope);
 const HASH = new Map(FILES.map((f) => [new URL(f.path, scope).pathname, f.sha256]));
 const INDEX = new URL('index.html', scope);
@@ -30,7 +37,6 @@ self.addEventListener('install', (event) => {
         if (!res.ok || (await hex(await res.clone().arrayBuffer())) !== f.sha256) throw new Error(`Bad file: ${f.path}`);
         await cache.put(url, res);
       }
-      await self.skipWaiting();
     })(),
   );
 });
@@ -38,10 +44,17 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);
+      for (const k of await caches.keys()) if (k.startsWith(PREFIX) && k !== CACHE) await caches.delete(k);
       await self.clients.claim();
     })(),
   );
+});
+
+self.addEventListener('message', (event) => {
+  const type = event.data?.type;
+  if (type === 'version') event.ports[0]?.postMessage(VERSION);
+  else if (type === 'activate') self.skipWaiting();
+  else if (type === 'claim') event.waitUntil(self.clients.claim());
 });
 
 async function report(request, why) {
@@ -68,15 +81,20 @@ self.addEventListener('fetch', (event) => {
 });
 
 /**
- * From the cache; on a miss (eviction, first load), fetch the file and serve
- * it only if it matches its build hash. Anything else fails closed.
+ * From the cache, if the copy still matches its build hash; on a miss or a
+ * mismatch (eviction, first load, tampering), fetch the file and serve it
+ * only if it matches. Anything else fails closed.
  */
 async function serve(url) {
-  const cache = await caches.open(CACHE);
-  const hit = await cache.match(url);
-  if (hit) return hit;
   const expected = HASH.get(url.pathname);
   if (!expected) return new Response('Not part of LocalCompress', { status: 404 });
+  const cache = await caches.open(CACHE);
+  const hit = await cache.match(url);
+  if (hit) {
+    if ((await hex(await hit.clone().arrayBuffer())) === expected) return hit;
+    report({ url: url.href, method: 'GET' }, 'cached copy altered, discarded');
+    await cache.delete(url);
+  }
   try {
     const res = await fetch(url, { cache: 'no-store' });
     if (res.ok && (await hex(await res.clone().arrayBuffer())) === expected) {
