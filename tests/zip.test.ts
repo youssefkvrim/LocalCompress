@@ -4,7 +4,8 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { strToU8, unzipSync, zipSync } from 'fflate';
-import { readZip } from '../src/lib/zip';
+import { readLocal, readZip, unsafeName } from '../src/lib/zip';
+import { Skip } from '../src/lib/types';
 import { rewrite, verify } from '../src/engines/zip';
 import { imageSize, office, sniff } from '../src/lib/detect';
 import { memoryCost } from '../src/lib/cost';
@@ -87,5 +88,30 @@ describe('detection', () => {
     expect(office(['[Content_Types].xml', 'ppt/presentation.xml'])).toEqual({ ext: 'pptx', macro: false });
     expect(office(['[Content_Types].xml', 'xl/workbook.xml', 'xl/vbaProject.bin'])).toEqual({ ext: 'xlsm', macro: true });
     expect(office(['a.txt'])).toBeNull();
+  });
+});
+
+describe('dangerous or ambiguous names', () => {
+  it.each(['/etc/passwd', '\\server\\x', 'C:/Windows/x.dll', '../up.txt', 'a/../../up.txt', 'NUL', 'nul.txt', 'd/CON.docx', 'com1', 'LPT9.log', 'file.', 'dir /x.txt', 'a.txt:hidden', 'x\u0001y'])('refuses %j', (name) => {
+    expect(unsafeName(name)).toBe(true);
+  });
+  it.each(['a.txt', 'dossier/', 'dossier/sous dossier/b.pdf', './a.txt', 'console.log', 'nullable.txt', 'com10.txt', '.gitignore', 'Été 2026/photo.jpg'])('accepts %j', (name) => {
+    expect(unsafeName(name)).toBe(false);
+  });
+
+  it('flags names that collide once case or Unicode form are ignored', async () => {
+    const nfc = 'Été.txt';
+    const nfd = nfc.normalize('NFD');
+    const archive = await readZip(new Blob([zipSync({ 'Rapport.txt': text(1), 'rapport.TXT': text(1), [nfc]: text(1), [nfd]: text(1), 'ok.txt': text(1) }) as BlobPart]));
+    expect(archive.entries.map((e) => e.unsafe)).toEqual([true, true, true, true, false]);
+  });
+
+  it('refuses an entry whose local name differs from the directory', async () => {
+    const src = zipSync({ 'a.txt': [text(1), { level: 0 }] });
+    expect(String.fromCharCode(src[30])).toBe('a');
+    src[30] = 'b'.charCodeAt(0); // the local header now says "b.txt"
+    const blob = new Blob([src as BlobPart]);
+    const [entry] = (await readZip(blob)).entries;
+    await expect(readLocal(blob, entry)).rejects.toBeInstanceOf(Skip);
   });
 });

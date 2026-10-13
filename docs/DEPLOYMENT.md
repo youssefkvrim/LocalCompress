@@ -45,7 +45,7 @@ Verify before publishing: `sha256sum -c SHA256SUMS` (Linux) or `Get-FileHash` (P
 1. Create a site (or application) pointing to `site/`, HTTPS binding with the internal certificate.
 2. Copy `deploy/web.config` into `site/`.
 3. Ensure *Request Filtering* is installed (the config restricts verbs and sets `maxAllowedContentLength=0`).
-4. Browse to the site: the Privacy & Security panel must show *Service worker: Active* and the capability list must show *WASM threads ✓* (proves COOP/COEP are effective).
+4. Browse to the site: the drop zone shows *Préparation de la protection…* for a few seconds on the first visit, then becomes active, and the Information panel shows *Prêt à fonctionner hors ligne* (service worker in control). If the drop zone shows an orange warning instead, the headers or the service worker are not right: processing stays disabled.
 
 ### nginx / container platform (OpenShift, Kubernetes)
 
@@ -59,9 +59,21 @@ If the build machines have no Internet access, pass `--build-arg BASE_IMAGE=<you
 
 On a classic nginx host, include the same server block and change `listen` and `root`.
 
-## 3. Sub-path hosting
+## 3. A dedicated origin (required)
 
-The build uses relative URLs (`base: './'`) and the service-worker scope is its own directory, so the app can live at `https://tools.intranet/localcompress/`.
+LocalCompress must have **its own host name**, shared with nothing else, for example:
+
+```
+https://localcompress.dev.apphub.safran/
+```
+
+Browsers isolate storage by *origin* (scheme + host + port), **not by path**. Hosted at `https://tools.intranet/localcompress/`, any other application on `tools.intranet` could read or delete the staged files (OPFS), poison the offline cache or read the settings. Therefore:
+
+- never host it under a sub-path of a portal or next to another application;
+- never put another application on its host name later;
+- workstation policy: no browser extension allowed on that origin.
+
+The build still uses relative URLs (`base: './'`), so a path such as `/localcompress/` works technically, on a host reserved for it. The service worker only ever deletes its own caches (`localcompress-*`).
 
 ## 4. Workstation requirements
 

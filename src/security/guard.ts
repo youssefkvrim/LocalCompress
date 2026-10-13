@@ -1,8 +1,9 @@
 /**
  * Runs first in the page and in every worker, before any other code.
  *
- * 1. Egress guard: network primitives only allow a body-less, same-origin
- *    GET of an application file. Everything else throws and is reported.
+ * 1. Egress guard: network primitives only allow a body-less, header-less,
+ *    same-origin GET of an application file. Everything else throws and is
+ *    reported (custom headers could carry data out just like a body).
  *    WebSocket, EventSource, WebTransport, WebRTC and beacons are disabled.
  * 2. Trusted Types: no HTML or script can be built from strings; scripts and
  *    workers only load from this origin.
@@ -27,6 +28,8 @@ export function allowed(url: URL, method: string, origin: string, strict = true)
   return null;
 }
 
+const hasHeaders = (h?: HeadersInit | null) => h != null && [...new Headers(h).keys()].length > 0;
+
 export function lockDown(scope: NetEntry['scope'], report: (e: NetEntry) => void, strict: boolean) {
   const g = globalThis as typeof globalThis & Record<string, unknown>;
   const origin = location.origin;
@@ -41,7 +44,8 @@ export function lockDown(scope: NetEntry['scope'], report: (e: NetEntry) => void
     const req = input instanceof Request ? input : null;
     const url = new URL(req ? req.url : String(input), location.href);
     const method = (init?.method ?? req?.method ?? 'GET').toUpperCase();
-    const why = init?.body != null ? 'request body not permitted' : allowed(url, method, origin, strict);
+    const headers = strict && (hasHeaders(init?.headers) || (req != null && hasHeaders(req.headers)));
+    const why = init?.body != null ? 'request body not permitted' : headers ? 'request headers not permitted' : allowed(url, method, origin, strict);
     if (why) return Promise.reject(block(url.href, method, why));
     return fetch(input, { ...init, credentials: 'same-origin', referrerPolicy: 'no-referrer' });
   });
@@ -54,6 +58,10 @@ export function lockDown(scope: NetEntry['scope'], report: (e: NetEntry) => void
       if (why) throw block(u.href, method, why);
       return (open as (...a: unknown[]) => void).call(this, method, url, ...rest);
     } as typeof open;
+    if (strict)
+      XMLHttpRequest.prototype.setRequestHeader = function (name: string) {
+        throw block('xhr', '-', `request header not permitted: ${name}`);
+      };
     const send = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, body?: Document | XMLHttpRequestBodyInit | null) {
       if (body != null) throw block('xhr', 'POST', 'request body not permitted');

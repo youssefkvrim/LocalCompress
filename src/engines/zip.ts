@@ -8,7 +8,7 @@ import { BEST_MAX, deflateBest, join } from '../lib/deflate';
 import { crc32 } from '../lib/crc32';
 import { Writer } from '../lib/scratch';
 import { Budget, ZipWriter, inflateEntry, readLocal, readZip, type Archive, type Entry, type Sink } from '../lib/zip';
-import type { Engine } from '../lib/types';
+import { Skip, type Engine } from '../lib/types';
 
 /** Payloads that are already compressed: recompressing them is wasted time. */
 const COMPRESSED = /\.(jpe?g|png|gif|webp|avif|heic|mp[34]|m4[av]|mov|mkv|webm|aac|ogg|opus|flac|zip|7z|rar|gz|bz2|xz|zst|docx|xlsx|pptx|pdf)$/i;
@@ -91,6 +91,8 @@ export async function verify(output: Blob, original: Archive, changed: Set<numbe
 
 export const zipEngine: Engine = async (job) => {
   const archive = await readZip(job.file);
+  // A dangerous or ambiguous name is not ours to fix: the archive stays as it is.
+  if (archive.entries.some((e) => e.unsafe)) throw new Skip('unsafe-paths');
   const out = await Writer.create(job.id, 'out.zip');
   // OpenDocument (and EPUB) require their first entry, "mimetype", to stay first and uncompressed.
   const changed = await rewrite(job.file, archive, out, {

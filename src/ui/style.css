@@ -78,6 +78,18 @@ a { color: inherit; }
 .has-files .zone { padding: 22px 16px; }
 .zone.blocked { border-color: var(--warn); background: #fff4e5; cursor: default; text-align: center; }
 .has-files .zone-plus { width: 40px; height: 40px; margin-bottom: 4px; }
+/* While the protection installs (first visit): a skeleton of the zone, with a light sweeping across. */
+.zone.loading { position: relative; overflow: hidden; cursor: progress; text-align: center; border-style: solid; border-color: var(--line); }
+.zone.loading:hover { border-color: var(--line); background: var(--grey-light); }
+.zone.loading::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.7) 50%, transparent 70%); transform: translateX(-100%); animation: sweep 1.6s ease-in-out infinite; }
+.zone.loading .zone-title { color: var(--grey); }
+.zone-plus.spin { background: none; border: 3px solid var(--blue-soft); border-top-color: var(--blue); animation: turn 0.9s linear infinite; }
+@keyframes sweep { to { transform: translateX(100%); } }
+@keyframes turn { to { transform: rotate(1turn); } }
+
+/* "A new version is available" */
+.update { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 16px; padding: 10px 16px; background: var(--blue-soft); color: var(--navy); font-size: 14px; text-align: center; }
+.update .btn:disabled { opacity: 0.5; cursor: default; background: var(--blue); }
 
 .mode { display: grid; justify-items: center; gap: 10px; margin: clamp(14px, 3vh, 26px) 0 clamp(16px, 3vh, 32px); }
 .seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 99px; background: var(--grey-light); }
@@ -110,6 +122,7 @@ a { color: inherit; }
 .row-note { grid-column: 2 / -1; margin: 0; padding: 6px 0 14px; min-height: 40px; font-size: 13px; color: var(--grey); }
 .row[data-optimized='true'] .row-note { color: var(--ok); }
 .row[data-state='failed'] .row-note { color: var(--bad); }
+.row-warn { grid-column: 2 / -1; margin: -6px 0 14px; padding: 8px 12px; border-radius: 10px; background: #fff4e5; color: #8a4b00; font-size: 13px; }
 
 .btn { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 20px; border-radius: 99px; background: var(--blue); color: var(--white); font-size: 14px; font-weight: 500; text-decoration: none; transition: background 0.2s; }
 .btn:hover { background: var(--navy); }
@@ -200,4 +213,6 @@ a { color: inherit; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.001ms !important; }
+  .zone.loading::after { animation: none; }
+  .zone-plus.spin { animation-duration: 3s; }
 }

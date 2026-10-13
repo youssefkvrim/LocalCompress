@@ -8,7 +8,11 @@ export interface Settings {
   allowMacros: boolean;
 }
 
-export const DEFAULTS: Settings = { mode: 'lossless', stripMetadata: true, allowMacros: false };
+/**
+ * Metadata cleaning is off by default: in images and videos, a classification
+ * label can live in the same metadata as the GPS position or the author.
+ */
+export const DEFAULTS: Settings = { mode: 'lossless', stripMetadata: false, allowMacros: false };
 
 /** Settings arrive from localStorage and postMessage: never trust their shape. */
 export function sanitize(x: unknown): Settings {
@@ -76,6 +80,8 @@ export interface Output {
   ext: string;
   engine: string;
   lossless: boolean;
+  /** Macros, ActiveX, embedded objects or external links, copied as they are. */
+  active?: boolean;
 }
 
 export type Engine = (job: Job) => Promise<Output>;
@@ -89,6 +95,7 @@ export interface Result {
   outputName: string;
   path: string[];
   engine: string;
+  active?: boolean;
   checks: Check[];
   sha256In?: string;
   sha256Out?: string;

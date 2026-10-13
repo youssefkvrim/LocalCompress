@@ -13,7 +13,7 @@ const walk = (d: string): string[] => readdirSync(d).flatMap((f) => (statSync(jo
  * Production only:
  *  - put the CSP in index.html;
  *  - after the build, hash every file into asset-manifest.json and write
- *    the service worker with that list.
+ *    the service worker with that list and the version (package.json).
  */
 const security: Plugin = {
   name: 'localcompress-security',
@@ -27,8 +27,8 @@ const security: Plugin = {
       .map((path) => ({ path, sha256: sha256(readFileSync(join('dist', path))) }));
     const build = sha256(Buffer.from(JSON.stringify(files))).slice(0, 12);
     writeFileSync('dist/asset-manifest.json', JSON.stringify({ version, build, files }, null, 2));
-    const sw = readFileSync('src/sw.js', 'utf8').replace("const BUILD = 'dev';", `const BUILD = '${build}';`).replace('const FILES = [];', `const FILES = ${JSON.stringify(files)};`);
-    if (sw.includes("'dev'") || sw.includes('FILES = []')) throw new Error('service worker template not filled');
+    const sw = readFileSync('src/sw.js', 'utf8').replace("const BUILD = 'dev';", `const BUILD = '${build}';`).replace("const VERSION = '0.0.0';", `const VERSION = '${version}';`).replace('const FILES = [];', `const FILES = ${JSON.stringify(files)};`);
+    if (sw.includes("'dev'") || sw.includes("'0.0.0'") || sw.includes('FILES = []')) throw new Error('service worker template not filled');
     writeFileSync('dist/sw.js', sw);
   },
 };
