@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { HEADERS, cspString } from './src/security/csp';
 
@@ -28,6 +28,10 @@ const security: Plugin = {
   name: 'localkit-security',
   apply: 'build',
   buildStart() {
+    if (!existsSync(MODEL.path)) {
+      this.warn(`${MODEL.path}: missing; background-removal model will not be preloaded by this build`);
+      return;
+    }
     let actual = 'missing';
     try {
       actual = sha256(readFileSync(MODEL.path));
@@ -38,6 +42,7 @@ const security: Plugin = {
   },
   transformIndexHtml: (html) => html.replace('<!--CSP-->', `<meta http-equiv="Content-Security-Policy" content="${cspString(false)}" />`),
   closeBundle() {
+    if (!existsSync('dist')) return;
     const files = walk('dist')
       .map((f) => relative('dist', f).split(sep).join('/'))
       .filter((f) => f !== 'sw.js' && f !== 'asset-manifest.json')
