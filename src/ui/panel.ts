@@ -1,6 +1,6 @@
 /**
  * The Informations page: privacy, settings, modes, formats, checks, the
- * tools LocalCompress is built on, temporary storage and contact.
+ * tools LocalKit is built on, temporary storage and contact.
  */
 import { usage } from '../lib/scratch';
 import type { Settings } from '../lib/types';
@@ -12,13 +12,16 @@ declare const __VERSION__: string;
 export const CONTACT = 'youssef.karim@safrangroup.com';
 
 
-/** Public projects LocalCompress is built on: [name, [fr, en], link]. */
+/** Public projects LocalKit is built on: [name, [fr, en], link]. */
 const TOOLS: [string, [string, string], string][] = [
   ['Mediabunny', ['Lit et réencode les vidéos et les sons.', 'Reads and re-encodes videos and sounds.'], 'https://github.com/Vanilagy/mediabunny'],
   ['pdf-lib', ['Ouvre et réécrit les fichiers PDF.', 'Opens and rewrites PDF files.'], 'https://github.com/Hopding/pdf-lib'],
+  ['pdf.js', ['Affiche les pages d’un PDF pour les convertir en images.', 'Renders PDF pages to convert them to pictures.'], 'https://github.com/mozilla/pdf.js'],
   ['jSquash', ['Compresse les images (MozJPEG, OxiPNG).', 'Compresses images (MozJPEG, OxiPNG).'], 'https://github.com/jamsinclair/jSquash'],
   ['libdeflate', ['Compresse les archives et documents, plus fort que le ZIP classique.', 'Compresses archives and documents, harder than classic ZIP.'], 'https://github.com/ebiggers/libdeflate'],
   ['hash-wasm', ['Calcule l’empreinte qui prouve qu’un fichier n’a pas changé.', 'Computes the fingerprint that proves a file has not changed.'], 'https://github.com/Daninet/hash-wasm'],
+  ['ONNX Runtime Web', ['Fait tourner le modèle qui supprime l’arrière-plan, dans le navigateur.', 'Runs the background-removal model in the browser.'], 'https://github.com/microsoft/onnxruntime'],
+  ['IS-Net (DIS)', ['Le modèle qui sépare le sujet du fond.', 'The model that separates the subject from the background.'], 'https://github.com/xuebinqin/DIS'],
 ];
 
 /** Remove every finished file (from the list and the disk); waiting and running files stay. */
@@ -49,6 +52,12 @@ export function panel() {
     const storage = h('span', null, '…');
     void usage().then((b) => (storage.textContent = bytes(b)));
     const section = (title: string, ...content: (Node | null)[]) => h('section', null, h('h3', null, title), ...content);
+    /** Why the Information button turned orange: what the protection blocked (production only). */
+    const blockedSection = () => {
+      const blocked = import.meta.env.PROD ? store.network.filter((n) => n.blocked) : [];
+      if (!blocked.length) return null;
+      return section(t('doc.blocked'), h('p', null, t('doc.blockedText')), h('ul', { class: 'net' }, ...blocked.slice(-20).map((n) => h('li', { class: 'blocked', title: n.url }, `${n.scope} · ${n.method} ${n.url} — ${n.why ?? ''}`))));
+    };
 
     replace(
       body,
@@ -63,6 +72,9 @@ export function panel() {
       section(t('doc.settings'), toggle('set.meta', 'set.metaHint', 'stripMetadata'), toggle('set.macros', 'set.macrosHint', 'allowMacros')),
       section(t('doc.modes'), ...(['lossless', 'balanced', 'compact'] as const).map((m) => h('p', null, h('b', null, `${t(m)}${getLang() === 'fr' ? ' :' : ':'} `), t(`mode.${m}`)))),
       section(t('doc.formats'), h('dl', { class: 'formats' }, ...formatList().flatMap(([c, f]) => [h('dt', null, c), h('dd', null, f)]))),
+      section(t('doc.convert'), h('p', null, t('doc.convertText'))),
+      section(t('doc.removebg'), h('p', null, t('doc.removebgText'))),
+      section(t('doc.pdfLab'), h('p', null, t('doc.pdfLabText')), h('p', null, t('doc.pdfLabNow'))),
       section(t('doc.checks'), h('p', null, t('doc.checksText'))),
       section(
         t('doc.tools'),
@@ -77,10 +89,20 @@ export function panel() {
       ),
       section(
         t('storage'),
-        h('p', { class: 'line spread' }, storage, h('button', { class: 'icon-btn danger', type: 'button', 'aria-label': t('purge'), title: t('purge'), onclick: () => void emptyStorage().then(render) }, icon.trash())),
+        h(
+          'p',
+          { class: 'line spread' },
+          storage,
+          h(
+            'button',
+            { class: 'icon-btn danger', type: 'button', 'aria-label': t('purge'), title: t('purge'), onclick: () => void emptyStorage().then(render) },
+            h('img', { src: '/bin.png', alt: '', class: 'i-asset', 'aria-hidden': 'true' }),
+          ),
+        ),
       ),
-      section(t('doc.contact'), h('p', null, t('doc.contactText')), h('a', { class: 'btn ghost', href: `mailto:${CONTACT}?subject=LocalCompress` }, icon.mail(), CONTACT)),
-      h('p', { class: 'version' }, `LocalCompress ${__VERSION__}`),
+      blockedSection(),
+      section(t('doc.contact'), h('p', null, t('doc.contactText')), h('a', { class: 'btn ghost', href: `mailto:${CONTACT}?subject=LocalKit` }, icon.mail(), t('contact.button'))),
+      h('p', { class: 'version' }, `LocalKit ${__VERSION__}`),
     );
   }
 
