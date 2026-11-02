@@ -13,6 +13,7 @@ import { memoryBudget, memoryCost } from '../lib/cost';
 import { categoryOf } from '../lib/detect';
 import { sanitize, type FromWorker, type ImageTarget, type MediaTarget, type NetEntry, type Reason, type Result, type Settings, type Step } from '../lib/types';
 import { isSvg, rasterizeSvg } from './svg';
+import { addPdfs } from './pdfdesk';
 import type { ModelState } from './preload';
 
 /** What a file can be converted to, by family. */
@@ -143,13 +144,15 @@ export const store = {
   add(files: Iterable<File>) {
     // Files dropped while the guard installs wait in the list; they start once it is on.
     if (!headersOk() || store.guard === 'failed' || store.update === 'stale') return;
+    // The PDF workshop keeps its own list (ui/pdfdesk.ts).
+    if (store.settings.task === 'pdf') return addPdfs(files);
     let first = true;
     for (const file of files) {
       const settings = { ...store.settings };
       const task = settings.task;
       // Conversion waits for the user's choice of format, unless there is nothing to choose.
       const held = task === 'convert' && targetsFor(file.name).length > 0;
-      const item: Item = { id: crypto.randomUUID(), file, settings, state: 'waiting', held, progress: 0, step: task, stepAt: 0 };
+      const item: Item = { id: crypto.randomUUID(), file, settings, state: 'waiting', held, progress: 0, step: task as Step, stepAt: 0 };
       store.items.push(item);
       if (task === 'removebg' && first) store.selected = item.id;
       first = false;
@@ -320,14 +323,15 @@ export async function saveAll() {
   await saveAs(new Blob(sink.parts, { type: 'application/zip' }), `LocalKit-${time}.zip`);
 }
 
-async function saveAs(file: Blob, name: string) {
+/** Save where the user chooses; false if the dialog was closed. */
+export async function saveAs(file: Blob, name: string): Promise<boolean> {
   const pick = (window as { showSaveFilePicker?: (o: object) => Promise<FileSystemFileHandle> }).showSaveFilePicker;
   let handle: FileSystemFileHandle | null = null;
   if (pick) {
     try {
       handle = await pick({ suggestedName: name });
     } catch (e) {
-      if ((e as DOMException).name === 'AbortError') return; // the user closed the dialog
+      if ((e as DOMException).name === 'AbortError') return false; // the user closed the dialog
     }
   }
   if (handle) {
@@ -336,7 +340,7 @@ async function saveAs(file: Blob, name: string) {
       writable = await handle.createWritable();
       await writable.write(file);
       await writable.close();
-      return;
+      return true;
     } catch {
       // The chosen file could not be written (often a security check when it is closed).
       // Remove what was left there (an empty file, a .crswap), so no broken file remains,
@@ -348,6 +352,7 @@ async function saveAs(file: Blob, name: string) {
   const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(file), download: name });
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
+  return true;
 }
 
 function ensureOutputName(item: Item): string {

@@ -2,9 +2,9 @@
 
 export type Mode = 'lossless' | 'balanced' | 'compact';
 
-/** What is done to the files: compress them, convert them, or cut out the subject of a picture. */
-export type Task = 'compress' | 'convert' | 'removebg';
-export const TASKS: Task[] = ['compress', 'convert', 'removebg'];
+/** What is done to the files: compress, convert, cut out the subject of a picture, or work on PDFs. */
+export type Task = 'compress' | 'convert' | 'removebg' | 'pdf';
+export const TASKS: Task[] = ['compress', 'convert', 'removebg', 'pdf'];
 
 /** Conversion targets: one for pictures, one for videos and sounds. */
 export type ImageTarget = 'jpg' | 'png' | 'webp' | 'pdf';

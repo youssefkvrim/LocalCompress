@@ -10,14 +10,14 @@ import { crc32 } from '../lib/crc32';
 import { safeName } from '../lib/names';
 import { readZip } from '../lib/zip';
 import { openFile, removeJob, setSession } from '../lib/scratch';
-import { Skip, sanitize, type Check, type Engine, type FromWorker, type Job, type Result, type Task, type ToWorker } from '../lib/types';
+import { Skip, sanitize, type Check, type Engine, type FromWorker, type Job, type Result, type Step, type Task, type ToWorker } from '../lib/types';
 
 type Post = (m: FromWorker) => void;
 
 /** A compressed result must save at least 1 % to be offered. */
 const MIN_SAVING = 0.01;
 /** Suffix of the file offered, before its extension. */
-const SUFFIX: Record<Task, string> = { compress: '.compressed', convert: '', removebg: '.nobg' };
+const SUFFIX: Record<Task, string> = { compress: '.compressed', convert: '', removebg: '.nobg', pdf: '' };
 
 export async function run(data: ToWorker, post: Post) {
   setSession(data.session);
@@ -58,7 +58,8 @@ export async function run(data: ToWorker, post: Post) {
       step: (step) => post({ type: 'step', step }),
       check: (label, ok) => void checks.push({ label, ok }),
     };
-    job.step(task);
+    // PDF workshop files never come here (ui/pdfdesk.ts has its own worker).
+    job.step(task as Step);
     const out = await engine(job);
     job.step('finish');
 

@@ -8,6 +8,7 @@ import { createEditor, type Editor } from './editor';
 import { mountWaves } from './waves';
 import { MODEL_MB } from '../lib/model';
 import { CONTACT, panel as makePanel } from './panel';
+import { createDesk, desk } from './pdfdesk';
 import { getLang, reasonText, setLang, t, type Lang } from './i18n';
 
 const MODES: Mode[] = ['lossless', 'balanced', 'compact'];
@@ -30,6 +31,7 @@ const KINDS: Record<Task, [Category, 'kinds.image' | 'kinds.pdf' | 'kinds.docume
     ['audio', 'kinds.audio', 'MP3, WAV, M4A, Ogg, FLAC'],
   ],
   removebg: [['image', 'kinds.image', 'JPEG, PNG, WebP, AVIF, SVG']],
+  pdf: [['pdf', 'kinds.pdf', 'PDF']],
 };
 
 /** A row of mutually exclusive buttons bound to one setting. */
@@ -73,6 +75,7 @@ export function mountApp(root: HTMLElement) {
   const actions = h('div', { class: 'actions' }, clear, saveAllButton);
   const zone = h('div', { class: 'zone-slot' });
   const banner = h('div', { class: 'update', role: 'status', hidden: true });
+  const pdfDesk = createDesk(() => picker.click());
 
   // ── Drop zone, or the picture being worked on (background removal) ──────
   let zoneKey = '';
@@ -139,7 +142,8 @@ export function mountApp(root: HTMLElement) {
   const renderZone = () => {
     const task = store.settings.task;
     const pic = selectedPicture();
-    const key = !headersOk() ? 'misconfig' : store.guard !== 'on' ? store.guard : pic ? `pic:${pic.id}:${pic.state}:${!!pic.result?.optimized}` : `drop:${task}`;
+    const key = !headersOk() ? 'misconfig' : store.guard !== 'on' ? store.guard : task === 'pdf' && desk.files.length ? 'pdf' : pic ? `pic:${pic.id}:${pic.state}:${!!pic.result?.optimized}` : `drop:${task}`;
+    if (key === 'pdf') pdfDesk.render();
     if (benchProgress && pic?.state === 'working') benchProgress.style.setProperty('--p', String(progressOf(pic, performance.now())));
     if (key === zoneKey) return void (benchModel && (benchModel.textContent = store.model.state === 'ready' ? '' : modelText()));
     zoneKey = key;
@@ -151,6 +155,7 @@ export function mountApp(root: HTMLElement) {
         zone,
         h('div', { class: 'zone loading', 'aria-busy': 'true', role: 'status' }, h('span', { class: 'zone-plus spin', 'aria-hidden': 'true' }), h('span', { class: 'zone-title' }, t('guard.pending')), h('span', { class: 'zone-sub' }, t(key === 'slow' ? 'guard.slow' : 'guard.pendingSub'))),
       );
+    else if (key === 'pdf') replace(zone, pdfDesk.el);
     else if (pic) {
       replace(zone, bench(pic));
       if (benchModel) benchModel.textContent = store.model.state === 'ready' ? '' : modelText();
@@ -238,6 +243,12 @@ export function mountApp(root: HTMLElement) {
       lede.textContent = t('sub.convert');
       veil.textContent = t('release.convert');
       hint.textContent = store.items.some((i) => i.held) ? '' : t('convert.hint');
+    } else if (task === 'pdf') {
+      title.textContent = t('title.pdf');
+      lede.textContent = t('sub.pdf');
+      veil.textContent = t('release.pdf');
+      replace(modes);
+      hint.textContent = desk.files.length ? '' : t('hint.pdf');
     } else {
       title.textContent = t('title.removebg');
       lede.textContent = t('sub.removebg');

@@ -90,14 +90,15 @@ class NoFilters {
 
 type Target = 'jpg' | 'png' | 'webp';
 
-export async function pdfToImages(job: Job, target: Target): Promise<Output> {
+/** Open a PDF with pdf.js inside this worker: fake worker, application resources only, no scripting. */
+export async function openPdf(data: Uint8Array, password?: string) {
   const g = globalThis as typeof globalThis & { pdfjsWorker?: unknown; fonts?: FontFaceSet };
   g.pdfjsWorker ??= await import('pdfjs-dist/build/pdf.worker.mjs');
   const pdfjs = await import('pdfjs-dist');
 
   const task = pdfjs.getDocument({
-    data: new Uint8Array(await job.file.arrayBuffer()),
-    password: job.password,
+    data,
+    password,
     // Workers have their own font set: embedded fonts load as real fonts there.
     ownerDocument: (g.fonts ? { fonts: g.fonts } : undefined) as unknown as HTMLDocument,
     disableFontFace: !g.fonts,
@@ -114,11 +115,19 @@ export async function pdfToImages(job: Job, target: Target): Promise<Output> {
     wasmUrl: 'local/',
     verbosity: 0,
   });
-  let doc: Awaited<typeof task.promise>;
   try {
-    doc = await task.promise;
+    return await task.promise;
   } catch (e) {
     await task.destroy();
+    throw e;
+  }
+}
+
+export async function pdfToImages(job: Job, target: Target): Promise<Output> {
+  let doc: Awaited<ReturnType<typeof openPdf>>;
+  try {
+    doc = await openPdf(new Uint8Array(await job.file.arrayBuffer()), job.password);
+  } catch (e) {
     // pdf.js: code 1 = a password is needed, 2 = the one given is wrong. The user is asked again.
     if ((e as Error).name === 'PasswordException') throw new Skip((e as { code?: number }).code === 2 ? 'password-wrong' : 'password');
     throw new Skip('corrupt');

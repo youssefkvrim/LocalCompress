@@ -1,6 +1,6 @@
 {
   "name": "localkit",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "description": "Le fichier reste ici. Local-first file toolkit (compress, convert, remove background): nothing is ever uploaded.",
   "license": "UNLICENSED",
