@@ -9,15 +9,6 @@ import { modelUrl, ortWasmUrl } from '../lib/model';
 
 export type ModelState = 'idle' | 'loading' | 'ready' | 'failed';
 
-export async function modelAvailable() {
-  try {
-    const res = await fetch(new URL(modelUrl, location.href), { method: 'HEAD' });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
-
 export async function preloadModel(report: (state: ModelState, progress: number) => void) {
   const urls = [ortWasmUrl, modelUrl].map((u) => new URL(u, location.href).href);
   try {

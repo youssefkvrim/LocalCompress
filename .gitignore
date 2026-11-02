@@ -2,7 +2,7 @@ node_modules/
 dist/
 release/
 tests/fixtures/
-models/*.onnx
+models/birefnet-lite.onnx
 *.tgz
 .claude/
 *.log

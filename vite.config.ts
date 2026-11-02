@@ -28,10 +28,6 @@ const security: Plugin = {
   name: 'localkit-security',
   apply: 'build',
   buildStart() {
-    if (!existsSync(MODEL.path)) {
-      this.warn(`${MODEL.path}: missing; background-removal model will not be preloaded by this build`);
-      return;
-    }
     let actual = 'missing';
     try {
       actual = sha256(readFileSync(MODEL.path));

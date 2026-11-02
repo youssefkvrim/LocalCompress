@@ -226,29 +226,7 @@ export function mountApp(root: HTMLElement) {
     renderZone();
     renderBanner();
     const task = store.settings.task;
-    replace(
-      tasks,
-      h(
-        'div',
-        { class: 'seg tasks-seg', role: 'radiogroup' },
-        ...TASKS.map((v) => {
-          const disabled = v === 'removebg' && store.model.state === 'failed';
-          return h(
-            'button',
-            {
-              type: 'button',
-              role: 'radio',
-              class: v === store.settings.task ? 'on' : '',
-              'aria-checked': String(v === store.settings.task),
-              disabled,
-              title: disabled ? t('model.unavailable') : '',
-              onclick: () => !disabled && store.set({ task: v }),
-            },
-            t(`task.${v}`),
-          );
-        }),
-      ),
-    );
+    replace(tasks, choice('task', TASKS, (v) => t(`task.${v}`), 'tasks-seg'));
     if (task === 'compress') {
       title.textContent = t('title');
       lede.textContent = t('sub');
