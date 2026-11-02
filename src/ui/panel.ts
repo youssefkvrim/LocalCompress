@@ -30,7 +30,6 @@ async function emptyStorage() {
 }
 
 export function panel() {
-  const showPdfLab = import.meta.env.DEV || import.meta.env.VITE_PDF_LAB === '1';
   const body = h('div', { class: 'panel-body' });
   const el = h(
     'aside',
@@ -75,7 +74,7 @@ export function panel() {
       section(t('doc.formats'), h('dl', { class: 'formats' }, ...formatList().flatMap(([c, f]) => [h('dt', null, c), h('dd', null, f)]))),
       section(t('doc.convert'), h('p', null, t('doc.convertText'))),
       section(t('doc.removebg'), h('p', null, t('doc.removebgText'))),
-      showPdfLab ? section(t('doc.pdfLab'), h('p', null, t('doc.pdfLabText')), h('p', null, t('doc.pdfLabNow'))) : null,
+      section(t('doc.pdfLab'), h('p', null, t('doc.pdfLabText')), h('p', null, t('doc.pdfLabNow'))),
       section(t('doc.checks'), h('p', null, t('doc.checksText'))),
       section(
         t('doc.tools'),
