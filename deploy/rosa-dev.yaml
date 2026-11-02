@@ -2,7 +2,7 @@
 # Ready to import for:
 # - OpenShift namespace: localkit
 # - Harbor project: localkit
-# - Image tag: 60be5da4
+# - Image tag: ac7cff86
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: localkit
-          image: registry.dev.apphub.safran/localkit/localkit:60be5da4
+          image: registry.dev.apphub.safran/localkit/localkit:ac7cff86
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
