@@ -1,0 +1,98 @@
+# ROSA DEV manifest for LocalKit
+# Update only these 2 values before import if needed:
+# - metadata.namespace
+# - image (Harbor project path)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localkit
+  namespace: REPLACE_WITH_NAMESPACE
+  labels:
+    app: localkit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localkit
+  template:
+    metadata:
+      labels:
+        app: localkit
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: localkit
+          image: registry.dev.apphub.safran/REPLACE_WITH_NAMESPACE/localkit:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: localkit
+  namespace: REPLACE_WITH_NAMESPACE
+  labels:
+    app: localkit
+spec:
+  selector:
+    app: localkit
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: localkit
+  namespace: REPLACE_WITH_NAMESPACE
+  labels:
+    app: localkit
+spec:
+  host: lokalkit.dev.apphub.safran
+  to:
+    kind: Service
+    name: localkit
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
