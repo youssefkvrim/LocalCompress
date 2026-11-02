@@ -15,4 +15,22 @@ build:image:
     - buildah push "$IMAGE_REPO:$IMAGE_TAG"
     - buildah push "$IMAGE_REPO:latest"
   rules:
+    # Only what ends up in the image: a commit touching only the ROSA manifest or the docs
+    # builds nothing (otherwise every manifest update would produce a new, unused tag).
     - if: '$CI_COMMIT_BRANCH'
+      changes:
+        - .gitlab-ci.yml
+        - Dockerfile
+        - .npmrc
+        - package.json
+        - package-lock.json
+        - index.html
+        - tsconfig.json
+        - vite.config.ts
+        - src/**/*
+        - public/**/*
+        - models/**/*
+        - scripts/**/*
+        - deploy/localkit.nginx.conf
+        - deploy/certs/**/*
+    - if: '$CI_PIPELINE_SOURCE == "web"'
