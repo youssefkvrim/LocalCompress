@@ -1,4 +1,4 @@
-FROM registry.dev.apphub.safran/proxy_docker/library/node:22-alpine AS build
+FROM registry.dev.apphub.safran/proxy_docker/library/node:24-alpine AS build
 
 WORKDIR /app
 
