@@ -75,7 +75,7 @@ export const imageEngine: Engine = async (job) => {
 
 const PNG_METADATA = new Set(['tEXt', 'zTXt', 'iTXt', 'eXIf', 'tIME']);
 
-async function optimizePng(png: Uint8Array, strip: boolean): Promise<Uint8Array> {
+export async function optimizePng(png: Uint8Array, strip: boolean): Promise<Uint8Array> {
   let best = png;
   try {
     // Single-threaded build: no nested worker pool (which escaped the egress

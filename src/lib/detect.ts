@@ -2,7 +2,7 @@
  * Identify a file from its first bytes. The extension is never trusted.
  */
 
-export type Kind = 'image' | 'video' | 'pdf' | 'zip' | 'other';
+export type Kind = 'image' | 'video' | 'audio' | 'pdf' | 'zip' | 'other';
 
 const text = (b: Uint8Array, at: number, n: number) => String.fromCharCode(...b.subarray(at, at + n));
 const has = (b: Uint8Array, sig: number[]) => sig.every((v, i) => b[i] === v);
@@ -12,9 +12,15 @@ export function sniff(b: Uint8Array): { kind: Kind; format: string } {
   if (has(b, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return { kind: 'image', format: 'png' };
   if (text(b, 0, 4) === 'RIFF' && text(b, 8, 4) === 'WEBP') return { kind: 'image', format: 'webp' };
   if (text(b, 0, 4) === 'GIF8') return { kind: 'image', format: 'gif' };
+  if (text(b, 0, 2) === 'BM' && b.length > 26 && b[14] >= 12 && b[15] === 0) return { kind: 'image', format: 'bmp' };
+  if (text(b, 0, 4) === 'RIFF' && text(b, 8, 4) === 'WAVE') return { kind: 'audio', format: 'wav' };
+  if (text(b, 0, 4) === 'OggS') return { kind: 'audio', format: 'ogg' };
+  if (text(b, 0, 4) === 'fLaC') return { kind: 'audio', format: 'flac' };
+  if (text(b, 0, 3) === 'ID3' || (b[0] === 0xff && (b[1] & 0xe6) === 0xe2)) return { kind: 'audio', format: 'mp3' };
   if (text(b, 4, 4) === 'ftyp') {
     const brand = text(b, 8, 4);
     if (/^(avi|hei|mif|msf)/.test(brand)) return { kind: 'image', format: brand.startsWith('avi') ? 'avif' : 'heic' };
+    if (/^M4[AB] /.test(brand)) return { kind: 'audio', format: 'm4a' };
     return { kind: 'video', format: 'mp4' };
   }
   if (has(b, [0x1a, 0x45, 0xdf, 0xa3])) return { kind: 'video', format: 'mkv' };
@@ -38,13 +44,13 @@ export type Category = 'image' | 'pdf' | 'presentation' | 'spreadsheet' | 'docum
 
 const CATEGORY_OF: Record<string, Category> = {};
 for (const [category, exts] of Object.entries({
-  image: 'jpg jpeg jfif png webp avif heic heif bmp tif tiff gif',
+  image: 'jpg jpeg jfif png webp avif heic heif bmp tif tiff gif svg',
   pdf: 'pdf',
   presentation: 'pptx pptm odp',
   spreadsheet: 'xlsx xlsm ods',
   document: 'docx docm odt',
   video: 'mp4 m4v mov mkv webm',
-  audio: 'wav mp3 m4a',
+  audio: 'wav mp3 m4a ogg opus flac',
   archive: 'zip',
 })) for (const ext of exts.split(' ')) CATEGORY_OF[ext] = category as Category;
 

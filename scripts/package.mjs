@@ -2,7 +2,7 @@
 /**
  * Produce the internal deployment package:
  *
- *   release/localcompress-<version>-<build>/
+ *   release/localkit-<version>-<build>/
  *     site/                 static files to publish (from dist/)
  *     deploy/nginx.conf     server block with all security headers
  *     deploy/web.config     IIS configuration with the same headers
@@ -22,7 +22,7 @@ import { HEADERS } from '../src/security/csp.ts';
 const root = join(import.meta.dirname, '..');
 const dist = join(root, 'dist');
 const manifest = JSON.parse(readFileSync(join(dist, 'asset-manifest.json'), 'utf8'));
-const name = `localcompress-${manifest.version}-${manifest.build}`;
+const name = `localkit-${manifest.version}-${manifest.build}`;
 const out = join(root, 'release', name);
 rmSync(out, { recursive: true, force: true });
 mkdirSync(join(out, 'deploy'), { recursive: true });
@@ -46,7 +46,7 @@ const location = (match, ...extra) =>
   ].join('\n');
 writeFileSync(
   join(out, 'deploy/nginx.conf'),
-  `# LocalCompress ${manifest.version} (build ${manifest.build}): static site, no server-side processing.
+  `# LocalKit ${manifest.version} (build ${manifest.build}): static site, no server-side processing.
 # For the nginx-unprivileged image: copy to /etc/nginx/conf.d/default.conf.
 # The server only delivers application files. It never receives user files:
 # only GET/HEAD are allowed and request bodies are refused.
@@ -61,6 +61,10 @@ server {
 ${location('= /sw.js', 'add_header Cache-Control "no-cache" always;')}
 
 ${location('~ \\.wasm$', 'types { } default_type application/wasm;', 'add_header Cache-Control "public, max-age=31536000, immutable" always;')}
+
+${location('~ \\.mjs$', 'types { } default_type text/javascript;', 'add_header Cache-Control "public, max-age=31536000, immutable" always;')}
+
+${location('~ \\.onnx$', 'types { } default_type application/octet-stream;', 'add_header Cache-Control "public, max-age=31536000, immutable" always;')}
 
 ${location('~ \\.webmanifest$', 'types { } default_type application/manifest+json;')}
 
@@ -90,12 +94,16 @@ const xmlEsc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/
 writeFileSync(
   join(out, 'deploy/web.config'),
   `<?xml version="1.0" encoding="UTF-8"?>
-<!-- LocalCompress ${manifest.version} (build ${manifest.build}), copy next to index.html. -->
+<!-- LocalKit ${manifest.version} (build ${manifest.build}), copy next to index.html. -->
 <configuration>
   <system.webServer>
     <staticContent>
       <remove fileExtension=".wasm" />
       <mimeMap fileExtension=".wasm" mimeType="application/wasm" />
+      <remove fileExtension=".mjs" />
+      <mimeMap fileExtension=".mjs" mimeType="text/javascript" />
+      <remove fileExtension=".onnx" />
+      <mimeMap fileExtension=".onnx" mimeType="application/octet-stream" />
       <remove fileExtension=".webmanifest" />
       <mimeMap fileExtension=".webmanifest" mimeType="application/manifest+json" />
       <remove fileExtension=".woff2" />

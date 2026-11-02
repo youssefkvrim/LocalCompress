@@ -7,8 +7,10 @@
  * are removed by the next tab that starts.
  */
 
-const ROOT = 'localcompress-scratch';
-const LOCK = 'localcompress-session-';
+const ROOT = 'localkit-scratch';
+const LOCK = 'localkit-session-';
+/** Scratch space under the former name (LocalCompress), removed once none of its tabs is open. */
+const LEGACY = { root: 'localcompress-scratch', lock: 'localcompress-session-' };
 
 let session = '';
 export const getSession = () => session;
@@ -50,6 +52,7 @@ export async function purgeOrphans() {
     for await (const name of (b as unknown as { keys(): AsyncIterable<string> }).keys()) {
       if (name !== session && !held.has(LOCK + name)) await b.removeEntry(name, { recursive: true }).catch(() => {});
     }
+    if (![...held].some((l) => l?.startsWith(LEGACY.lock))) await (await navigator.storage.getDirectory()).removeEntry(LEGACY.root, { recursive: true }).catch(() => {});
   } catch {
     /* no OPFS or no Web Locks */
   }

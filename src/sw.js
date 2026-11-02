@@ -1,4 +1,4 @@
-/* LocalCompress service worker: offline cache and egress firewall.
+/* LocalKit service worker: offline cache and egress firewall.
  *
  * The build replaces the constants below: FILES lists every file of the
  * build with its SHA-256 (also published as asset-manifest.json).
@@ -11,7 +11,10 @@
  *  - A new version installs in the background and waits. The page offers it
  *    when it is newer and activates it on request; otherwise it takes over
  *    once every tab of the old version is closed.
- *  - Only this application's caches (localcompress-*) are ever deleted.
+ *  - Large files marked `lazy` (the background-removal model) are not
+ *    downloaded at install but on first use, with the same hash check.
+ *  - Only this application's caches (localkit-*, and localcompress-* from
+ *    its former name) are ever deleted.
  */
 'use strict';
 
@@ -19,7 +22,8 @@ const BUILD = 'dev';
 const VERSION = '0.0.0';
 const FILES = [];
 
-const PREFIX = 'localcompress-';
+const PREFIX = 'localkit-';
+const LEGACY = 'localcompress-';
 const CACHE = `${PREFIX}${BUILD}`;
 const scope = new URL(self.registration.scope);
 const HASH = new Map(FILES.map((f) => [new URL(f.path, scope).pathname, f.sha256]));
@@ -32,6 +36,7 @@ self.addEventListener('install', (event) => {
     (async () => {
       const cache = await caches.open(CACHE);
       for (const f of FILES) {
+        if (f.lazy) continue;
         const url = new URL(f.path, scope);
         const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok || (await hex(await res.clone().arrayBuffer())) !== f.sha256) throw new Error(`Bad file: ${f.path}`);
@@ -44,7 +49,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      for (const k of await caches.keys()) if (k.startsWith(PREFIX) && k !== CACHE) await caches.delete(k);
+      for (const k of await caches.keys()) if ((k.startsWith(PREFIX) && k !== CACHE) || k.startsWith(LEGACY)) await caches.delete(k);
       await self.clients.claim();
     })(),
   );
@@ -75,7 +80,7 @@ self.addEventListener('fetch', (event) => {
     : 'not an application file';
   if (why) {
     report(req, why);
-    return event.respondWith(new Response('Blocked by LocalCompress', { status: 403 }));
+    return event.respondWith(new Response('Blocked by LocalKit', { status: 403 }));
   }
   event.respondWith(serve(navigation ? INDEX : url));
 });
@@ -87,7 +92,7 @@ self.addEventListener('fetch', (event) => {
  */
 async function serve(url) {
   const expected = HASH.get(url.pathname);
-  if (!expected) return new Response('Not part of LocalCompress', { status: 404 });
+  if (!expected) return new Response('Not part of LocalKit', { status: 404 });
   const cache = await caches.open(CACHE);
   const hit = await cache.match(url);
   if (hit) {

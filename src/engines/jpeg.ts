@@ -735,7 +735,7 @@ function encode(frame: Frame, head: Uint8Array[], progressive: boolean): Uint8Ar
 const startsWithAscii = (d: Uint8Array, s: string) => s.split('').every((ch, i) => d[i] === ch.charCodeAt(0));
 
 /** EXIF orientation (1-8) from an APP1 payload, or 1. */
-function exifOrientation(app1: Uint8Array): number {
+export function exifOrientation(app1: Uint8Array): number {
   if (!startsWithAscii(app1, 'Exif\0\0')) return 1;
   const t = app1.subarray(6);
   const le = t[0] === 0x49;

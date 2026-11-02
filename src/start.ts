@@ -4,6 +4,7 @@ import { claimSession, purgeOrphans, purgeSession } from './lib/scratch';
 import { store } from './ui/store';
 import { newer } from './lib/version';
 import { mountApp } from './ui/app';
+import { preloadModel } from './ui/preload';
 import '@fontsource/poppins/latin-400.css';
 import '@fontsource/poppins/latin-ext-400.css';
 import '@fontsource/poppins/latin-500.css';
@@ -25,6 +26,17 @@ export function start(early: NetEntry[]) {
   if (import.meta.env.PROD && navigator.serviceWorker?.controller) store.guard = 'on';
   mountApp(document.getElementById('app')!);
   if (import.meta.env.PROD) void protect();
+
+  // The background-removal model downloads in the background once the protection
+  // is on (so the service worker checks and keeps it), after the page has settled.
+  let preloading = false;
+  const preload = () => {
+    if (preloading || store.guard !== 'on') return;
+    preloading = true;
+    setTimeout(() => void preloadModel(store.setModel), 1500);
+  };
+  store.on(preload);
+  preload();
 }
 
 declare const __VERSION__: string;

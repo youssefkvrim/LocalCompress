@@ -5,13 +5,14 @@ import { DEFAULTS, sanitize } from '../src/lib/types';
 import { safeName } from '../src/lib/names';
 import { newer } from '../src/lib/version';
 
-const origin = 'https://localcompress.intranet.example';
+const origin = 'https://localkit.intranet.example';
 const u = (p: string) => new URL(p, origin);
 
 describe('egress policy', () => {
   it('allows only same-origin GET of application files', () => {
     expect(allowed(u('/assets/app-1234.js'), 'GET', origin)).toBeNull();
     expect(allowed(u('/assets/mozjpeg_enc.wasm'), 'GET', origin)).toBeNull();
+    expect(allowed(u('/assets/isnet-general-use-1234.onnx'), 'GET', origin)).toBeNull();
     expect(allowed(u('/'), 'GET', origin)).toBeNull();
   });
   it.each(['POST', 'PUT', 'PATCH', 'DELETE'])('blocks %s, even to its own server', (m) => {
@@ -40,7 +41,9 @@ describe('settings', () => {
   it('fall back to safe defaults', () => {
     expect(sanitize(null)).toEqual(DEFAULTS);
     expect(sanitize({ mode: '__proto__', allowMacros: 'yes' })).toEqual(DEFAULTS);
-    expect(DEFAULTS).toEqual({ mode: 'lossless', stripMetadata: false, allowMacros: false });
+    expect(sanitize({ task: 'upload', imageTarget: 'exe', mediaTarget: 'constructor' })).toEqual(DEFAULTS);
+    expect(sanitize({ task: 'convert', imageTarget: 'webp' })).toMatchObject({ task: 'convert', imageTarget: 'webp' });
+    expect(DEFAULTS).toEqual({ task: 'compress', mode: 'lossless', stripMetadata: false, allowMacros: false, imageTarget: 'jpg', mediaTarget: 'mp4' });
   });
 });
 

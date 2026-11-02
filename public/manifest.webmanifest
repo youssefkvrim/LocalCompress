@@ -1,7 +1,7 @@
 {
-  "name": "LocalCompress",
-  "short_name": "LocalCompress",
-  "description": "Compression de fichiers sur le poste. Rien n’est envoyé.",
+  "name": "LocalKit",
+  "short_name": "LocalKit",
+  "description": "Compresser, convertir, supprimer l’arrière-plan, sur le poste. Rien n’est envoyé.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -27,6 +27,12 @@ const REVIEWED = new Set([
   'aomediacodec.github.io', // AV1 spec link in a Mediabunny error message
   'www.npmjs.com', // hash-wasm licence banner
   'localhost', // Emscripten fallback when import.meta.url is undefined
+  'example.com', // pdf.js: dummy base to parse a relative URL (new URL(x, base)), never fetched
+  'foo.bar', // pdf.js: same, dummy base for URL parsing
+  'www.xfa.org', // XFA form XML namespaces (pdf.js; XFA is disabled)
+  'web.dev', // ONNX Runtime warning text (cross-origin isolation guide)
+  'rolldown.rs', // bundler error text for an unavailable require()
+  'www.apache.org', // Apache-2.0 licence headers (ONNX Runtime WebGPU kernels)
 ]);
 /** Engine signatures that must never reach the page's own code. */
 const ENGINE = ['wasm_call_ctors', 'Emscripten', 'instantiateWasm', 'createSHA256'];
@@ -35,7 +41,7 @@ const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirect
 const problems = [];
 const hosts = new Map();
 
-for (const f of walk(dist).filter((f) => /\.(js|css|html|json|webmanifest|svg)$/.test(f))) {
+for (const f of walk(dist).filter((f) => /\.(m?js|css|html|json|webmanifest|svg)$/.test(f))) {
   for (const [, host] of readFileSync(f, 'utf8').matchAll(/\b(?:https?|wss?):\/\/([a-z0-9.-]+)/gi)) {
     const h = host.toLowerCase();
     hosts.set(h, (hosts.get(h) ?? new Set()).add(relative(dist, f)));

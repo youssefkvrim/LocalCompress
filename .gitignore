@@ -2,6 +2,8 @@ node_modules/
 dist/
 release/
 tests/fixtures/
+models/*.onnx
+*.tgz
 .claude/
 *.log
 .DS_Store

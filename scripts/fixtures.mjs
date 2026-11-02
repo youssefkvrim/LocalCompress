@@ -58,11 +58,11 @@ ff(
   const png = await doc.embedPng(readFileSync(p('photo.png')));
   for (let i = 0; i < 4; i++) {
     const page = doc.addPage([595, 842]);
-    page.drawText(`LocalCompress fixture, page ${i + 1}`, { x: 50, y: 790, size: 18, font, color: rgb(0.1, 0.1, 0.1) });
+    page.drawText(`LocalKit fixture, page ${i + 1}`, { x: 50, y: 790, size: 18, font, color: rgb(0.1, 0.1, 0.1) });
     page.drawImage(i % 2 ? png : jpg, { x: 50, y: 300, width: 495, height: 371 });
   }
   doc.setAuthor('Fixture Author');
-  doc.setProducer('LocalCompress fixtures');
+  doc.setProducer('LocalKit fixtures');
   writeFileSync(p('report.pdf'), await doc.save({ useObjectStreams: false }));
 }
 

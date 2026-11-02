@@ -11,7 +11,7 @@ import { imageSize, office, sniff } from '../src/lib/detect';
 import { memoryCost } from '../src/lib/cost';
 import { Memory, fixture, tool } from './helpers';
 
-const text = (n: number) => strToU8('LocalCompress keeps the file on the workstation. '.repeat(n));
+const text = (n: number) => strToU8('LocalKit keeps the file on the workstation. '.repeat(n));
 const bytes = async (b: Blob) => new Uint8Array(await b.arrayBuffer());
 
 describe('zip', () => {

@@ -15,7 +15,7 @@
  */
 import type { NetEntry } from '../lib/types';
 
-const ASSET = /\.(js|wasm|css|woff2?|svg|png|ico|webmanifest|json|html)$/i;
+const ASSET = /\.(m?js|wasm|onnx|bcmap|pfb|ttf|css|woff2?|svg|png|ico|webmanifest|json|html)$/i;
 
 /** strict = production. The dev server needs query strings and module paths. */
 export function allowed(url: URL, method: string, origin: string, strict = true): string | null {
@@ -35,7 +35,7 @@ export function lockDown(scope: NetEntry['scope'], report: (e: NetEntry) => void
   const origin = location.origin;
   const block = (url: string, method: string, why: string) => {
     report({ scope, url, method, blocked: true, why });
-    return new Error(`LocalCompress blocked ${method} ${url}: ${why}`);
+    return new Error(`LocalKit blocked ${method} ${url}: ${why}`);
   };
   const freeze = (o: object, key: string, value: unknown) => Object.defineProperty(o, key, { value, writable: false, configurable: false });
 

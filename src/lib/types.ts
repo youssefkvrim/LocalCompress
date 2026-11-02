@@ -2,25 +2,43 @@
 
 export type Mode = 'lossless' | 'balanced' | 'compact';
 
+/** What is done to the files: compress them, convert them, or cut out the subject of a picture. */
+export type Task = 'compress' | 'convert' | 'removebg';
+export const TASKS: Task[] = ['compress', 'convert', 'removebg'];
+
+/** Conversion targets: one for pictures, one for videos and sounds. */
+export type ImageTarget = 'jpg' | 'png' | 'webp' | 'pdf';
+export type MediaTarget = 'mp4' | 'webm' | 'm4a' | 'wav';
+export const IMAGE_TARGETS: ImageTarget[] = ['jpg', 'png', 'webp', 'pdf'];
+export const MEDIA_TARGETS: MediaTarget[] = ['mp4', 'webm', 'm4a', 'wav'];
+
 export interface Settings {
+  task: Task;
   mode: Mode;
   stripMetadata: boolean;
   allowMacros: boolean;
+  imageTarget: ImageTarget;
+  mediaTarget: MediaTarget;
 }
 
 /**
  * Metadata cleaning is off by default: in images and videos, a classification
  * label can live in the same metadata as the GPS position or the author.
  */
-export const DEFAULTS: Settings = { mode: 'lossless', stripMetadata: false, allowMacros: false };
+export const DEFAULTS: Settings = { task: 'compress', mode: 'lossless', stripMetadata: false, allowMacros: false, imageTarget: 'jpg', mediaTarget: 'mp4' };
+
+const oneOf = <T extends string>(v: unknown, list: readonly T[], fallback: T): T => (list.includes(v as T) ? (v as T) : fallback);
 
 /** Settings arrive from localStorage and postMessage: never trust their shape. */
 export function sanitize(x: unknown): Settings {
   const s = (x && typeof x === 'object' ? x : {}) as Partial<Settings>;
   return {
+    task: oneOf(s.task, TASKS, DEFAULTS.task),
     mode: s.mode === 'balanced' || s.mode === 'compact' ? s.mode : 'lossless',
     stripMetadata: typeof s.stripMetadata === 'boolean' ? s.stripMetadata : DEFAULTS.stripMetadata,
     allowMacros: s.allowMacros === true,
+    imageTarget: oneOf(s.imageTarget, IMAGE_TARGETS, DEFAULTS.imageTarget),
+    mediaTarget: oneOf(s.mediaTarget, MEDIA_TARGETS, DEFAULTS.mediaTarget),
   };
 }
 
@@ -39,7 +57,12 @@ export type Reason =
   | 'unsupported'
   | 'validation'
   | 'quota'
-  | 'corrupt';
+  | 'corrupt'
+  | 'same-format'
+  | 'no-subject'
+  /** A password is needed to open the file; the user is asked for it. */
+  | 'password'
+  | 'password-wrong';
 
 /** Thrown by an engine to leave the file untouched, with a reason. */
 export class Skip extends Error {
@@ -57,7 +80,7 @@ export interface Check {
 }
 
 /** What the user is told the worker is doing. */
-export type Step = 'compress' | 'verify' | 'finish';
+export type Step = 'compress' | 'convert' | 'removebg' | 'verify' | 'finish';
 
 /** What an engine receives. */
 export interface Job {
@@ -66,6 +89,10 @@ export interface Job {
   mode: Mode;
   stripMetadata: boolean;
   allowMacros: boolean;
+  imageTarget: ImageTarget;
+  mediaTarget: MediaTarget;
+  /** Typed by the user for this file only; never stored. */
+  password?: string;
   progress(fraction: number): void;
   /** Announce that the engine moves on to checking its candidate. */
   step(step: Step): void;
@@ -87,6 +114,8 @@ export interface Output {
 export type Engine = (job: Job) => Promise<Output>;
 
 export interface Result {
+  task: Task;
+  /** A result was produced (compressed, converted or cut out); false: the original is offered as is. */
   optimized: boolean;
   reason?: Reason;
   lossless: boolean;
@@ -111,7 +140,7 @@ export interface NetEntry {
   why?: string;
 }
 
-export type ToWorker = { id: string; session: string; file: File; settings: Settings };
+export type ToWorker = { id: string; session: string; file: File; settings: Settings; password?: string };
 
 export type FromWorker =
   | { type: 'progress'; value: number }
