@@ -1,14 +1,14 @@
 # ROSA DEV manifest for LocalKit
-# Update these values before import:
-# - REPLACE_WITH_NAMESPACE: OpenShift namespace
-# - REPLACE_WITH_HARBOR_PROJECT: Harbor project name used by CI variable HARBOR_PROJECT
-# - image tag: latest or a specific commit tag (recommended)
+# Ready to import for:
+# - OpenShift namespace: localkit
+# - Harbor project: localkit
+# - Image tag: ee4b8ca0
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: localkit
-  namespace: REPLACE_WITH_NAMESPACE
+  namespace: localkit
   labels:
     app: localkit
 spec:
@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: localkit
-          image: registry.dev.apphub.safran/REPLACE_WITH_HARBOR_PROJECT/localkit:latest
+          image: registry.dev.apphub.safran/localkit/localkit:ee4b8ca0
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -68,7 +68,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: localkit
-  namespace: REPLACE_WITH_NAMESPACE
+  namespace: localkit
   labels:
     app: localkit
 spec:
@@ -84,11 +84,11 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: localkit
-  namespace: REPLACE_WITH_NAMESPACE
+  namespace: localkit
   labels:
     app: localkit
 spec:
-  host: lokalkit.dev.apphub.safran
+  host: localkit.dev.apphub.safran
   to:
     kind: Service
     name: localkit

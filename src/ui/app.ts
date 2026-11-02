@@ -52,8 +52,6 @@ const modelText = () => {
   return t('model.firstUse').replace('{mb}', String(MODEL_MB));
 };
 
-const availableTasks = () => (store.model.state === 'failed' ? TASKS.filter((t) => t !== 'removebg') : TASKS);
-
 export function mountApp(root: HTMLElement) {
   unmount();
   const panel = makePanel();
@@ -225,12 +223,32 @@ export function mountApp(root: HTMLElement) {
 
   const rows = new Map<string, ReturnType<typeof row>>();
   const render = () => {
-    const tasksForUi = availableTasks();
-    if (!tasksForUi.includes(store.settings.task)) store.set({ task: 'compress' });
     renderZone();
     renderBanner();
     const task = store.settings.task;
-    replace(tasks, choice('task', tasksForUi, (v) => t(`task.${v}`), 'tasks-seg'));
+    replace(
+      tasks,
+      h(
+        'div',
+        { class: 'seg tasks-seg', role: 'radiogroup' },
+        ...TASKS.map((v) => {
+          const disabled = v === 'removebg' && store.model.state === 'failed';
+          return h(
+            'button',
+            {
+              type: 'button',
+              role: 'radio',
+              class: v === store.settings.task ? 'on' : '',
+              'aria-checked': String(v === store.settings.task),
+              disabled,
+              title: disabled ? t('model.unavailable') : '',
+              onclick: () => !disabled && store.set({ task: v }),
+            },
+            t(`task.${v}`),
+          );
+        }),
+      ),
+    );
     if (task === 'compress') {
       title.textContent = t('title');
       lede.textContent = t('sub');
