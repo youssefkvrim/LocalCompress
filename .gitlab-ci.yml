@@ -1,0 +1,18 @@
+stages:
+  - build
+
+variables:
+  IMAGE_REPO: "$HARBOR_URL/$HARBOR_PROJECT/$CI_PROJECT_NAME"
+  IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+
+build:image:
+  stage: build
+  tags:
+    - aws-buildah
+  script:
+    - buildah login -u "$HARBOR_USER" -p "$HARBOR_PASSWORD" "$HARBOR_URL"
+    - buildah bud --pull --layers -f Dockerfile -t "$IMAGE_REPO:$IMAGE_TAG" -t "$IMAGE_REPO:latest" .
+    - buildah push "$IMAGE_REPO:$IMAGE_TAG"
+    - buildah push "$IMAGE_REPO:latest"
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
