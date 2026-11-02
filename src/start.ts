@@ -4,7 +4,7 @@ import { claimSession, purgeOrphans, purgeSession } from './lib/scratch';
 import { store } from './ui/store';
 import { newer } from './lib/version';
 import { mountApp } from './ui/app';
-import { preloadModel } from './ui/preload';
+import { modelAvailable, preloadModel } from './ui/preload';
 import '@fontsource/poppins/latin-400.css';
 import '@fontsource/poppins/latin-ext-400.css';
 import '@fontsource/poppins/latin-500.css';
@@ -33,7 +33,10 @@ export function start(early: NetEntry[]) {
   const preload = () => {
     if (preloading || store.guard !== 'on') return;
     preloading = true;
-    setTimeout(() => void preloadModel(store.setModel), 1500);
+    setTimeout(async () => {
+      if (!(await modelAvailable())) return void store.setModel('failed', 0);
+      void preloadModel(store.setModel);
+    }, 1500);
   };
   store.on(preload);
   preload();

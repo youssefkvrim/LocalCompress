@@ -83,6 +83,7 @@ const TEXT = {
   'model.ready': ['Le modèle d’analyse est prêt.', 'The analysis model is ready.'],
   'model.loading': ['Le modèle d’analyse se télécharge en arrière-plan{p}.', 'The analysis model is downloading in the background{p}.'],
   'model.firstUse': ['Le modèle d’analyse (environ {mb} Mo) est chargé à la première utilisation.', 'The analysis model (about {mb} MB) loads on first use.'],
+  'model.unavailable': ['Le modèle de suppression d’arrière-plan n’est pas disponible sur ce serveur.', 'The background-removal model is not available on this server.'],
   'contact.button': ['Écrire au support', 'Contact support'],
   'doc.blocked': ['Requêtes bloquées', 'Blocked requests'],
   'doc.blockedText': [

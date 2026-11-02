@@ -1,6 +1,25 @@
-TODO: add SSO (Safran single sign-on)
+SSO backlog (Safran OneAD)
 
-Put Safran SSO in front of the LocalCompress site, so only authenticated
+P1 - Clarify scope
+- Confirm whether SSO is required only to access the app URL or also inside LocalKit flows.
+- Keep file processing fully local: no token must be forwarded to workers.
+
+P1 - Edge integration
+- Put OIDC/OAuth2 at route/ingress level (reverse-proxy auth), not in the browser app.
+- Preserve static hosting behavior and all security headers (COOP/COEP/CSP).
+
+P2 - Session UX
+- Add a readonly "authenticated" banner from response header/cookie presence.
+- Keep application functional offline once the static files are cached.
+
+P2 - Security checks
+- Verify no auth header/cookie is readable by workers.
+- Verify blocked egress remains blocked with SSO enabled.
+
+P3 - Ops
+- Add runbook: token expiration behavior, logout path, incident fallback.
+
+Put Safran SSO in front of the LocalKit site, so only authenticated
 Safran users can load the application.
 
 Notes for whoever implements it:

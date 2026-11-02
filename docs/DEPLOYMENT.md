@@ -1,21 +1,25 @@
 # Deployment (internal)
 
-LocalCompress is a **static site**. Hosting it requires no application server, no database, no runtime, and no storage for user data.
+LocalKit is a **static site**. Hosting it requires no application server, no database, no runtime, and no storage for user data.
 
 ## 1. Build the package (on the build host)
 
 ```bash
 npm ci                       # from the internal npm mirror, lockfile enforced, no install scripts
 npm run typecheck && npm test
-npm run package              # build → dist audit → SBOM → release/localcompress-<ver>-<build>/
+npm run package              # build → dist audit → SBOM → release/localkit-<ver>-<build>/
 ```
 
 The build **fails** if the bundle references any unreviewed external host, if the CSP is missing, or if `asset-manifest.json` does not match the files.
 
+Repository note:
+- GitLab CI builds with the repository root `Dockerfile`.
+- The packaged release contains `deploy/Dockerfile` for offline/air-gapped promotion from the release folder.
+
 Package contents:
 
 ```
-release/localcompress-<version>-<build>/
+release/localkit-<version>-<build>/
   site/                  publish this directory
     index.html  sw.js  asset-manifest.json  manifest.webmanifest  logo.svg  assets/…
   deploy/nginx.conf      server block for the nginx-unprivileged image (port 8080)
@@ -52,7 +56,7 @@ Verify before publishing: `sha256sum -c SHA256SUMS` (Linux) or `Get-FileHash` (P
 `deploy/Dockerfile` builds an image that runs without root on port 8080, from the release folder:
 
 ```bash
-docker build -f deploy/Dockerfile -t localcompress .
+docker build -f deploy/Dockerfile -t localkit .
 ```
 
 If the build machines have no Internet access, pass `--build-arg BASE_IMAGE=<your internal registry proxy>/nginxinc/nginx-unprivileged:stable-alpine`. HTTPS is terminated by the platform (route / ingress). The config is `deploy/nginx.conf` (copied to `/etc/nginx/conf.d/default.conf`): every location repeats the security headers and the GET-only restriction, because nginx does not inherit `add_header` into a location that sets its own, and only accepts `limit_except` inside a location.
@@ -61,24 +65,24 @@ On a classic nginx host, include the same server block and change `listen` and `
 
 ## 3. A dedicated origin (required)
 
-LocalCompress must have **its own host name**, shared with nothing else, for example:
+LocalKit must have **its own host name**, shared with nothing else, for example:
 
 ```
-https://localcompress.dev.apphub.safran/
+https://localkit.dev.apphub.safran/
 ```
 
-Browsers isolate storage by *origin* (scheme + host + port), **not by path**. Hosted at `https://tools.intranet/localcompress/`, any other application on `tools.intranet` could read or delete the staged files (OPFS), poison the offline cache or read the settings. Therefore:
+Browsers isolate storage by *origin* (scheme + host + port), **not by path**. Hosted at `https://tools.intranet/localkit/`, any other application on `tools.intranet` could read or delete the staged files (OPFS), poison the offline cache or read the settings. Therefore:
 
 - never host it under a sub-path of a portal or next to another application;
 - never put another application on its host name later;
 - workstation policy: no browser extension allowed on that origin.
 
-The build still uses relative URLs (`base: './'`), so a path such as `/localcompress/` works technically, on a host reserved for it. The service worker only ever deletes its own caches (`localcompress-*`).
+The build still uses relative URLs (`base: './'`), so a path such as `/localkit/` works technically, on a host reserved for it. The service worker only ever deletes its own caches (`localkit-*`).
 
 ## 4. Workstation requirements
 
 - Microsoft Edge or Google Chrome ≥ 120, managed.
-- Recommended policies on C3 workstations: extension allow-list (no extensions on the LocalCompress origin), `DefaultFileSystemWriteGuardSetting` allowing the File System Access save dialog for the LocalCompress origin, browser auto-update from the internal channel.
+- Recommended policies on C3 workstations: extension allow-list (no extensions on the LocalKit origin), `DefaultFileSystemWriteGuardSetting` allowing the File System Access save dialog for the LocalKit origin, browser auto-update from the internal channel.
 - Disk encryption (BitLocker), OPFS scratch lives in the browser profile while a job is staged.
 - Sufficient free disk: the browser grants OPFS a share of free space; the largest output that can be staged is bounded by it.
 

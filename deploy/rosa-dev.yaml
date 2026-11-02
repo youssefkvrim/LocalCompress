@@ -1,7 +1,8 @@
 # ROSA DEV manifest for LocalKit
-# Update only these 2 values before import if needed:
-# - metadata.namespace
-# - image (Harbor project path)
+# Update these values before import:
+# - REPLACE_WITH_NAMESPACE: OpenShift namespace
+# - REPLACE_WITH_HARBOR_PROJECT: Harbor project name used by CI variable HARBOR_PROJECT
+# - image tag: latest or a specific commit tag (recommended)
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -26,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: localkit
-          image: registry.dev.apphub.safran/REPLACE_WITH_NAMESPACE/localkit:latest
+          image: registry.dev.apphub.safran/REPLACE_WITH_HARBOR_PROJECT/localkit:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -48,7 +49,7 @@ spec:
               memory: 512Mi
           readinessProbe:
             httpGet:
-              path: /
+              path: /healthz
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -56,7 +57,7 @@ spec:
             failureThreshold: 6
           livenessProbe:
             httpGet:
-              path: /
+              path: /healthz
               port: 8080
             initialDelaySeconds: 20
             periodSeconds: 20

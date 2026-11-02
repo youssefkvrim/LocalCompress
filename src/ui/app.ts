@@ -48,8 +48,11 @@ const modelText = () => {
   const { state, progress } = store.model;
   if (state === 'ready') return t('model.ready');
   if (state === 'loading') return t('model.loading').replace('{p}', progress ? ` (${Math.round(progress * 100)}${getLang() === 'fr' ? ' %' : '%'})` : '');
+  if (state === 'failed') return t('model.unavailable');
   return t('model.firstUse').replace('{mb}', String(MODEL_MB));
 };
+
+const availableTasks = () => (store.model.state === 'failed' ? TASKS.filter((t) => t !== 'removebg') : TASKS);
 
 export function mountApp(root: HTMLElement) {
   unmount();
@@ -222,10 +225,12 @@ export function mountApp(root: HTMLElement) {
 
   const rows = new Map<string, ReturnType<typeof row>>();
   const render = () => {
+    const tasksForUi = availableTasks();
+    if (!tasksForUi.includes(store.settings.task)) store.set({ task: 'compress' });
     renderZone();
     renderBanner();
     const task = store.settings.task;
-    replace(tasks, choice('task', TASKS, (v) => t(`task.${v}`), 'tasks-seg'));
+    replace(tasks, choice('task', tasksForUi, (v) => t(`task.${v}`), 'tasks-seg'));
     if (task === 'compress') {
       title.textContent = t('title');
       lede.textContent = t('sub');
